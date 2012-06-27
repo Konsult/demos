@@ -1,19 +1,18 @@
-if (Meteor.is_client) {
-  Template.hello.greeting = function () {
-    return "Welcome to BouncyPhotoGallery.";
-  };
+function randomizeRotation(element, minDegree, maxDegree)
+{
+  if (minDegree == undefined)
+    minDegree = 0;
+  if (maxDegree == undefined)
+    maxDegree = 360;
 
-  Template.hello.events = {
-    'click input' : function () {
-      // template data, if any, is available in 'this'
-      if (typeof console !== 'undefined')
-        console.log("You pressed the button");
-    }
-  };
+  var rotation = Math.random() * (maxDegree - minDegree) + minDegree;
+
+  // FIXME: Support other flavors of transforms.
+  element.style.webkitTransform = element.style.webkitTransform.replace(/(\s*rotate\([^\)]+\))|$/, "rotate(" + rotation + "deg)");
+  if (!element.style.webkitTransformOrigin)
+    element.style.webkitTransformOrigin = "center";
 }
 
-if (Meteor.is_server) {
-  Meteor.startup(function () {
-    // code to run on server at startup
-  });
-}
+Meteor.startup(function () {
+  $("#rotate").click(function () { randomizeRotation(this); });
+});
