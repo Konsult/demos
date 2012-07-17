@@ -1,19 +1,20 @@
 <head>
-  <meta name="viewport" content="width = device-width, initial-scale = 1.0, user-scalable = no">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <title>Bill Splitter</title>
 </head>
 
 <body>
   <div id="PersonContainer">
-    {{> addpersoncard}}
   </div>
   {{> taxandtip}}
 </body>
 
 <template name="person">
   <div class="Person">
-    <div class="PersonIcon icon-user"></div>
+    <div class="PersonIcon {{additionalClasses}}">
+      <div class="Icon icon-user icon-white"></div>
+    </div>
     <div class="ItemContainer">
       <div class="BottomShadow"></div>
       <div class="TopShadow"></div>
@@ -28,30 +29,28 @@
   </div>
 </template>
 
-<template name="addpersoncard">
-  <div class="AddPersonCard">
-    <div class="AddPersonButton btn">
-      <div class="icon-user"></div>
-      <div>Add Person</div>
-    </div>
+<template name="addpersonbutton">
+  <div class="AddPersonButton btn {{buttonType}}" onclick="createPerson('{{buttonType}}')">
+      <span class="icon-plus icon-white"></span>
+      <span class="icon-user icon-white"></span>
   </div>
 </template>
 
 <template name="item">
   <div class="Item">
-    {{> plussign}}</span> <input class="ItemPrice" type="tel" placeholder="Item Price">
+    {{> plussign}} $&nbsp;<input class="ItemPrice" type="number" placeholder="Item Price">
   </div>
 </template>
 
 <template name="taxandtip">
   <div id="taxAndTip">
     <div id="taxAndTipInnerContainer">
-      <div id="tax">
-        <div class="Label">Tax: $</div>
-        <input class="Input" id="taxInput" name="tax" type="tel" pattern="[0-9\.]*" placeholder="Tax of Entire Bill">
+      <div id="total">
+        <div class="Label">Split $&nbsp;</div>
+        <input class="Input" id="totalInput" name="total" type="number" placeholder="Total">
       </div>
       <div id="tip">
-        <div class="Label">Tip:&nbsp;</div>
+        <div class="Label">&nbsp;&amp; Tip&nbsp;</div>
         <select name="tip" id="tipInput" class="Input">
           <option value="0">0%</option>
           <option value="5">5%</option>
@@ -62,6 +61,10 @@
           <option value="20">20%</option>
           <option value="25">25%</option>
         </select>
+      </div>
+      <div id="tax">
+        <div class="Label">&nbsp;+ $&nbsp;</div>
+        <input class="Input" id="taxInput" name="tax" type="number" placeholder="Tax">
       </div>
     </div>
   </div>

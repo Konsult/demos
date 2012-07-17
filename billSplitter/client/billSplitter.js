@@ -3,16 +3,36 @@ var screenWidth = 320;
 var personMargin = 20;
 var personWidth = 180;
 
+// Cached values
+var addPersonButton;
+var personContainer;
+
 Meteor.startup(function () {
-  createPerson();
-  createPerson();
+
+  personContainer = $("#PersonContainer");
+  personContainer.append(Meteor.ui.render(function (){
+    return Template.addpersonbutton({buttonType: randomButtonType()});
+  }));
+  addPersonButton = $(".AddPersonButton");
+  personContainer.width(addPersonButton.outerWidth(true));
+  createPerson(randomButtonType());
+  createPerson(randomButtonType());
 });
 
-function createPerson() {
-  var person = Meteor.ui.render(function () { return Template.person(); });
-  var personContainer = $("#PersonContainer");
-  personContainer[0].insertBefore(person, personContainer.children(".AddPersonCard")[0]);
-  person = personContainer.children().last().prev();
+var types = ["btn-primary", "btn-info", "btn-success", "btn-warning", "btn-danger"];
+var currentType = Math.floor(Math.random() * types.length);
+function randomButtonType() {
+  // Not really random b/c random produces the same results too often =)
+  currentType = ++currentType % types.length;
+  return types[currentType];
+}
+
+function createPerson(additionalClasses) {
+  var person = Meteor.ui.render(function () { return Template.person({additionalClasses: additionalClasses}); });
+  // var personContainer = $("#PersonContainer");
+  personContainer[0].insertBefore(person, addPersonButton[0]);
+  var children = personContainer.children(".Person");
+  person = children.last();
 
   var list = person.find(".ScrollableItemList");
   list.scroll(function(e) {
@@ -27,11 +47,22 @@ function createPerson() {
   });
 
   itemCountDidChangeForPerson(person);
-  var numChildren = personContainer.children().length;
-  personContainer.width(numChildren * (personWidth + 2 * personMargin) - 2 * personMargin);
+  var numChildren = children.length;
+  personContainer.width(personContainer.width() + person.outerWidth(true));
 
   createItemForPerson(person);
-  createItemForPerson(person);
+  var item = createItemForPerson(person);
+
+  // Randomize add button type again.
+  var classList = addPersonButton[0].classList;
+  addPersonButton.removeClass(classList[classList.length - 1]);
+  var type = randomButtonType();
+  addPersonButton.addClass(type);
+  addPersonButton.attr("onclick", "createPerson('" + type + "')");
+
+  item.find("ItemPrice").focus();
+
+  return person;
 }
 
 function createItemForPerson(person) {
@@ -51,6 +82,7 @@ function createItemForPerson(person) {
   });
 
   itemCountDidChangeForPerson(person);
+  return item;
 }
 
 function itemCountDidChangeForPerson(person) {
