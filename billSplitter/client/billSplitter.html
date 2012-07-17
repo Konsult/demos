@@ -1,0 +1,72 @@
+<head>
+  <meta name="viewport" content="width = device-width, initial-scale = 1.0, user-scalable = no">
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <title>Bill Splitter</title>
+</head>
+
+<body>
+  <div id="PersonContainer">
+    {{> addpersoncard}}
+  </div>
+  {{> taxandtip}}
+</body>
+
+<template name="person">
+  <div class="Person">
+    <div class="PersonIcon icon-user"></div>
+    <div class="ItemContainer">
+      <div class="BottomShadow"></div>
+      <div class="TopShadow"></div>
+      <div class="ScrollableItemList">
+      </div>
+    </div>
+    <div class="PersonTotal">
+      <div class="Label TaxTip">+ Tax &amp; Tip</div>
+      <div class="Label">My Share&nbsp;</div>
+      <div class="Amount">= $<span class="Dollar">0</span>.<span class="Cents">00</span></div>
+    </div>
+  </div>
+</template>
+
+<template name="addpersoncard">
+  <div class="AddPersonCard">
+    <div class="AddPersonButton btn">
+      <div class="icon-user"></div>
+      <div>Add Person</div>
+    </div>
+  </div>
+</template>
+
+<template name="item">
+  <div class="Item">
+    {{> plussign}}</span> <input class="ItemPrice" type="tel" placeholder="Item Price">
+  </div>
+</template>
+
+<template name="taxandtip">
+  <div id="taxAndTip">
+    <div id="taxAndTipInnerContainer">
+      <div id="tax">
+        <div class="Label">Tax: $</div>
+        <input class="Input" id="taxInput" name="tax" type="tel" pattern="[0-9\.]*" placeholder="Tax of Entire Bill">
+      </div>
+      <div id="tip">
+        <div class="Label">Tip:&nbsp;</div>
+        <select name="tip" id="tipInput" class="Input">
+          <option value="0">0%</option>
+          <option value="5">5%</option>
+          <option value="10">10%</option>
+          <option value="12">12%</option>
+          <option value="15" selected>15%</option>
+          <option value="17">17%</option>
+          <option value="20">20%</option>
+          <option value="25">25%</option>
+        </select>
+      </div>
+    </div>
+  </div>
+</template>
+
+<template name="plussign">
+  <span class="Plus">+&nbsp;</span>
+</template>

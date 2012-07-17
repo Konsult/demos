@@ -1,0 +1,226 @@
+@screenWidth: 320px;
+@screenHeight: 356px;
+
+@personMargin: 20px;
+@personWidth: 180px;
+@personTotalHeight: 65px;
+
+@taxAndTipHeight: 65px;
+@tallScreenHeight: @screenHeight + @taxAndTipHeight;
+
+body {
+  background-color: rgb(211, 211, 211);
+  background-image: url('/low_contrast_linen.png');
+  padding: 0;
+
+  font-size: 20px;
+  font-weight: bold;
+  text-shadow: 0 1px 0 white;
+  line-height: 24px;
+
+  overflow-y: hidden;
+}
+
+#PersonContainer {
+  @horizontalPadding: (@screenWidth - @personWidth)/2;
+
+  width: 0;
+  height: @screenHeight;
+  box-sizing: content-box;
+  padding: 0 @horizontalPadding 0 @horizontalPadding;
+  overflow-x: scroll;
+  overflow-y: hidden;
+}
+
+.Person {
+  @padding: 10px;
+
+  position: relative;
+  background-color: white;
+  background-image: -webkit-linear-gradient(transparent, rgba(0, 0, 0, 0.1)),
+                    url('/lightpaperfibers.png');
+
+  width: @personWidth;
+  height: @screenHeight - 2 * @personMargin;
+  margin: @personMargin;
+  float: left;
+
+  box-sizing: border-box;
+  padding: @padding;
+
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+
+  .PersonIcon {
+    position: relative;
+    margin: 0 auto 10px auto;
+    display: block;
+  }
+
+  .PersonTotal {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: @personTotalHeight;
+    padding: @padding;
+    box-sizing: border-box;
+
+    clear: both;
+
+    .Label {
+      float: left;
+      font-size: 14px;
+    }
+    .Amount {
+      float: right;
+      text-align: right;
+    }
+    .Label.TaxTip {
+      clear: both;
+      width: 100%;
+      text-align: right;
+
+      color: fade(black, 50%);
+      font-weight: normal;
+    }
+
+  }
+
+  .ItemContainer {
+    position: absolute;
+    top: 24px + @padding * 1 / 3;
+    left: 0;
+    right: 0;
+    bottom: @personTotalHeight;
+
+    overflow: hidden;
+
+    .ScrollableItemList {
+      position: relative;
+      overflow: auto;
+
+      width: 100%;
+      height: 100%;
+
+      padding: @padding*2/3 @padding @taxAndTipHeight+@padding @padding;
+      box-sizing: border-box;
+
+      z-index: 1;
+
+      .Item {
+        clear: both;
+        text-align: right;
+
+        .ItemPrice {
+          float: right;
+          text-align: right;
+          padding: 5px;
+          width: 100px;
+        }
+      }
+
+      .Item:first-child {
+        .Plus {
+          display: none;
+        }
+      }
+    }
+
+    .TopShadow {
+      @shadowSize: 5px;
+
+      position: absolute;
+      top: 0;
+      left: -@shadowSize;
+      right: -@shadowSize;
+      height: 1px;
+      background-color: fade(black, 25%);
+      box-shadow: 0 0 @shadowSize black;
+
+      z-index: 2;
+
+      display: none;
+    }
+
+    .BottomShadow {
+      .TopShadow;
+      bottom: 0;
+      top: auto;
+    }
+  }
+}
+
+.Person:first-child {
+  margin-left: 0;
+}
+
+#taxAndTip {
+  @padding: 20px;
+
+  position: fixed;
+  bottom:   @personTotalHeight + @personMargin;
+  width: 100%;
+  height: @taxAndTipHeight;
+
+  background-color: fade(rgb(255, 250, 245), 95%);
+  background-image: -webkit-linear-gradient(fade(white, 50%), fade(white, 20%) 50%, transparent 50%, fade(black, 10%));
+
+  box-sizing: border-box;
+  padding: @padding;
+
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.5);
+
+  z-index: 3;
+
+  clear: both;
+
+  #taxAndTipInnerContainer {
+    max-width: @screenWidth;
+    height: 100%;  
+    margin: auto;  
+  }
+
+  #tax, #tax *, #tip * {
+    float: left;
+  }
+
+  #tip {
+    float: right;
+  }
+
+  #tax .Input {
+    width: 100px;
+  }
+
+  #tip .Input {
+    width: 60px;
+  }
+}
+
+.AddPersonCard {
+  .Person;
+  margin-right: 0;
+
+  background: none;
+  box-shadow: none;
+
+  .AddPersonButton {
+    position: absolute;
+    width: 50%;
+    height: 20%;
+
+    top: 40%;
+    left: 12%;
+  }
+}
+
+@media (min-height: @tallScreenHeight) {
+  #taxAndTip {
+    bottom: 0;
+  }
+
+  .Person .ItemContainer .ScrollableItemList {
+    padding-bottom: 0;
+  }
+}
