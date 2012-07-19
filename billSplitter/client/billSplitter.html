@@ -5,7 +5,8 @@
 </head>
 
 <body>
-  <div id="PersonContainer">
+  <div id="scrollableContainer">
+    <div id="PersonContainer"></div>
   </div>
   {{> taxandtip}}
 </body>
@@ -38,7 +39,7 @@
 
 <template name="item">
   <div class="Item">
-    {{> plussign}} $&nbsp;<input class="ItemPrice" type="number" placeholder="Item Price">
+    {{> plussign}} $&nbsp;<input class="ItemPrice Input" type="text" pattern="[0-9]*" placeholder="Item Price">
   </div>
 </template>
 
@@ -47,7 +48,7 @@
     <div id="taxAndTipInnerContainer">
       <div id="total">
         <div class="Label">Split $&nbsp;</div>
-        <input class="Input" id="totalInput" name="total" type="number" placeholder="Total">
+        <input class="Input" id="totalInput" name="total" type="text" pattern="[0-9]*" placeholder="Total">
       </div>
       <div id="tip">
         <div class="Label">&nbsp;&amp; Tip&nbsp;</div>
@@ -64,7 +65,7 @@
       </div>
       <div id="tax">
         <div class="Label">&nbsp;+ $&nbsp;</div>
-        <input class="Input" id="taxInput" name="tax" type="number" placeholder="Tax">
+        <input class="Input" id="taxInput" name="tax" type="text" pattern="[0-9]*" placeholder="Tax">
       </div>
     </div>
   </div>

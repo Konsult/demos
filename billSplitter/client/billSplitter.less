@@ -1,5 +1,6 @@
 @screenWidth: 320px;
 @screenHeight: 460px;
+@containerHeight: @screenHeight - @taxAndTipHeight;
 
 // Defined by Boostrap.
 @inputHeight: 28px;
@@ -13,28 +14,25 @@
 
 html, body {
   height: 100%;
+  width: 100%;
+  overflow: hidden;
 }
 
 body {
-  background-color: rgb(211, 211, 211);
+  background-color: black;
   background-image: url('/low_contrast_linen.png');
   padding: 0;
 
   font-weight: bold;
   text-shadow: 0 1px 0 white;
   line-height: @inputHeight;
-
-  overflow-y: hidden;
-  overflow-x: auto;
 }
 
 #PersonContainer {
   @horizontalPadding: (@screenWidth - @personWidth)/2;
-  @containerHeight: @screenHeight - @taxAndTipHeight;
-
   position: relative;
   width: 0;
-  top: @screenHeight - @containerHeight;
+  top: 0;
   height: @containerHeight;
   box-sizing: content-box;
   padding: 0 0 0 @horizontalPadding - @personMargin;
@@ -60,6 +58,8 @@ body {
     border-radius: 5px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
 
+    -webkit-animation: FadeIn 0.25s both ease-in-out;
+
     .PersonIcon {
       @padding: 5px;
       position: relative;
@@ -81,6 +81,8 @@ body {
     }
 
     .PersonTotal {
+      @smallerFont: 14px;
+
       position: absolute;
       bottom: 0;
       left: 0;
@@ -91,13 +93,18 @@ body {
 
       clear: both;
 
+      font-size: 18px;
+      line-height: 20px;
+
       .Label {
         float: left;
-        font-size: 14px;
       }
       .Amount {
         float: right;
         text-align: right;
+      }
+      .Cents {
+        font-size: @smallerFont;
       }
       .Label.TaxTip {
         clear: both;
@@ -106,6 +113,8 @@ body {
 
         color: fade(black, 50%);
         font-weight: normal;
+
+        font-size: @smallerFont;
       }
 
     }
@@ -195,6 +204,15 @@ body {
   }
 }
 
+#scrollableContainer {
+  position: absolute;
+  width: 100%;
+  top: @taxAndTipHeight;
+  height: @containerHeight;
+
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
 
 #taxAndTip {
   @padding: 10px;
@@ -233,4 +251,8 @@ body {
   #tip .Input {
     width: 60px;
   }
+}
+
+.Input {
+  -webkit-tap-highlight-color: transparent;
 }

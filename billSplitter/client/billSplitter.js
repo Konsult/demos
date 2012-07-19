@@ -6,17 +6,24 @@ var personWidth = 180;
 // Cached values
 var addPersonButton;
 var personContainer;
+var scrollableContainer;
 
 Meteor.startup(function () {
 
   personContainer = $("#PersonContainer");
+  scrollableContainer = $("#scrollableContainer");
+
   personContainer.append(Meteor.ui.render(function (){
     return Template.addpersonbutton({buttonType: randomButtonType()});
   }));
   addPersonButton = $(".AddPersonButton");
+  
   personContainer.width(addPersonButton.outerWidth(true));
-  createPerson(randomButtonType());
-  createPerson(randomButtonType());
+  var firstPerson = createPerson(randomButtonType(), false);
+  createPerson(randomButtonType(), false);
+
+  bindEventHandlersToCurrencyField($("#totalInput"));
+  bindEventHandlersToCurrencyField($("#taxInput"));
 });
 
 var types = ["btn-primary", "btn-info", "btn-success", "btn-warning", "btn-danger"];
@@ -27,7 +34,7 @@ function randomButtonType() {
   return types[currentType];
 }
 
-function createPerson(additionalClasses) {
+function createPerson(additionalClasses, centerAndFocus) {
   var person = Meteor.ui.render(function () { return Template.person({additionalClasses: additionalClasses}); });
   // var personContainer = $("#PersonContainer");
   personContainer[0].insertBefore(person, addPersonButton[0]);
@@ -50,7 +57,6 @@ function createPerson(additionalClasses) {
   var numChildren = children.length;
   personContainer.width(personContainer.width() + person.outerWidth(true));
 
-  createItemForPerson(person);
   var item = createItemForPerson(person);
 
   // Randomize add button type again.
@@ -58,9 +64,16 @@ function createPerson(additionalClasses) {
   addPersonButton.removeClass(classList[classList.length - 1]);
   var type = randomButtonType();
   addPersonButton.addClass(type);
-  addPersonButton.attr("onclick", "createPerson('" + type + "')");
+  addPersonButton.attr("onclick", "createPerson('" + type + "', true)");
 
-  item.find("ItemPrice").focus();
+   if (centerAndFocus) {
+    item.find(".ItemPrice").focus();
+    setTimeout(function () {
+      scrollableContainer.animate({
+        scrollLeft: personContainer.outerWidth(true),
+      }, 1000);
+    }, 250);
+  };
 
   return person;
 }
@@ -71,14 +84,16 @@ function createItemForPerson(person) {
   list.append(item);
   item = $(list[0].lastElementChild);
 
-  item.children(".ItemPrice").focus(function (e) {
+  var field = item.children(".ItemPrice");
+  bindEventHandlersToCurrencyField(field, true);
+
+  field.focus(function (e) {
     if (item.parent()[0].lastElementChild === item[0])
       createItemForPerson(person);
   }).blur(function (e) {
-    if (item.parent()[0].childElementCount < 3)
-      return;
-    if (item.next()[0] === item.parent()[0].lastElementChild && !item.children(".ItemPrice").val())
-      item.next().remove();
+    // Remove empty fields unless they are the last field
+    if (item[0] !== item.parent()[0].lastElementChild && !item.children(".ItemPrice").val())
+      item.remove();
   });
 
   itemCountDidChangeForPerson(person);
@@ -89,4 +104,78 @@ function itemCountDidChangeForPerson(person) {
   var list = person.find(".ScrollableItemList");
   var isOverflowing = list[0].scrollHeight > list.innerHeight();
   person.find(".BottomShadow").css("display", isOverflowing ? "block" : "none");
+}
+
+function bindEventHandlersToCurrencyField(field, isItemPrice) {
+  function moveSelectionToEnd(element) {
+    var end = element.value.length;
+    element.setSelectionRange(end, end);
+  }
+
+  field.focus(function (e) {
+    var fieldElement = e.target;
+    if (!fieldElement.value)
+      fieldElement.value = "0.00";
+    moveSelectionToEnd(fieldElement);
+
+  }).mouseup(function (e) {
+    // Override WebKit's setting of position to where the mouse clicked.
+    moveSelectionToEnd(e.target);
+
+  }).blur(function (e) {
+    if (!parseFloat(e.target.value))
+      e.target.value = "";
+
+  }).keypress(function (e) {
+    var value = String.fromCharCode(e.charCode);
+
+    if (!value)
+      return;
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    value = parseInt(value);
+    if (isNaN(value))
+      return;
+
+    // Compute new value
+    var fieldElement = e.target;
+    var oldValue = parseFloat(fieldElement.value);
+    value = parseFloat(oldValue) * 10 + value / 100;
+    fieldElement.value = value.toFixed(2);
+
+    if (isItemPrice)
+      updateTotalForPerson($(fieldElement).closest(".Person"), value - oldValue);
+  }).keydown(function (e) {
+    // Override backspace so we maintain the right formatting
+    if(e.keyCode !== "\b".charCodeAt(0))
+      return;
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    var fieldElement = e.target;
+    var oldValue = parseFloat(fieldElement.value);
+    var value = Math.min(oldValue / 10);
+    fieldElement.value = (value).toFixed(2);
+
+    if (isItemPrice)
+      updateTotalForPerson($(fieldElement).closest(".Person"), value - oldValue);
+  });
+}
+
+function updateTotalForPerson(person, deltaTotal)
+{
+  if (!deltaTotal)
+    return;
+  
+  var dollarElement = person.find(".Dollar")[0];
+  var centsElement = person.find(".Cents")[0];
+  var currentTotal = dollarElement.innerText + "." + centsElement.innerText;
+  currentTotal = (parseFloat(currentTotal) + deltaTotal).toFixed(2);
+  
+  var totalStrings = currentTotal.split(".");
+  dollarElement.innerText = totalStrings[0];
+  centsElement.innerText = totalStrings[1];
 }
