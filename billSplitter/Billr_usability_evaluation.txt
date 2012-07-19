@@ -1,0 +1,28 @@
+Pro:
+	Big:
+    - split shared items
+    - price entering has a dot
+    - can share
+    - looks nice and polished
+	Small:
+    - clear how to proceed
+    - can clear
+    - set number of people first
+    - tooltips
+Con:
+  Big:
+    - not clear that you can specify share item
+    - lots of clicking required on every screen
+  Small:
+    - have to press button to add item
+    - is x sharing or not sharing?
+    - always same number of steps
+    - manually entering tax & tip not intuitive
+    - do you need to show all that info on tax & tip page? (ditto on results page)
+    - should emphasize total more or hide itemized
+    - limit of 16 people
+Question:
+  - where to enter name
+  - how does share work
+  - how do you display shared items in final screen?
+  - what happens if u have a gazillion items
