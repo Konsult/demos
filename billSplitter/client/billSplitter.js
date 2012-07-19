@@ -8,6 +8,12 @@ var addPersonButton;
 var personContainer;
 var scrollableContainer;
 
+// Map $(".Person").id -> subtotal (w/o tax and tip)
+var PersonSubtotals = {};
+var numPeople = 0;
+
+var tipMultiplier = 0;
+
 Meteor.startup(function () {
 
   personContainer = $("#PersonContainer");
@@ -24,6 +30,22 @@ Meteor.startup(function () {
 
   bindEventHandlersToCurrencyField($("#totalInput"));
   bindEventHandlersToCurrencyField($("#taxInput"));
+
+  // Initialize tip and bind event handlers to tip selection
+  function updateTipMultiplier(e) {
+    tipMultiplier = parseFloat($("#tipInput option:selected").val());
+  
+    if (!e)
+      return;
+
+    // Recalculate all person totals.
+    $(".Person").each(function () {
+      updateTotalForPerson($(this), 0);
+    });
+  };
+  $("#tipInput").change(updateTipMultiplier);
+  updateTipMultiplier();
+
 });
 
 var types = ["btn-primary", "btn-info", "btn-success", "btn-warning", "btn-danger"];
@@ -36,10 +58,13 @@ function randomButtonType() {
 
 function createPerson(additionalClasses, centerAndFocus) {
   var person = Meteor.ui.render(function () { return Template.person({additionalClasses: additionalClasses}); });
-  // var personContainer = $("#PersonContainer");
   personContainer[0].insertBefore(person, addPersonButton[0]);
   var children = personContainer.children(".Person");
   person = children.last();
+
+  var id = "P" + (numPeople++);
+  person.attr("id", id);
+  PersonSubtotals[id] = 0;
 
   var list = person.find(".ScrollableItemList");
   list.scroll(function(e) {
@@ -167,15 +192,15 @@ function bindEventHandlersToCurrencyField(field, isItemPrice) {
 
 function updateTotalForPerson(person, deltaTotal)
 {
-  if (!deltaTotal)
-    return;
+  var id = person[0].id;
+  var newSubtotal = PersonSubtotals[id] + deltaTotal;
+  PersonSubtotals[id] = newSubtotal;
+
+  // FIXME: Add tax and tip calculation
+  var tip = newSubtotal * tipMultiplier;
+  $("#tipAmount")[0].innerText = tip.toFixed(2);
   
-  var dollarElement = person.find(".Dollar")[0];
-  var centsElement = person.find(".Cents")[0];
-  var currentTotal = dollarElement.innerText + "." + centsElement.innerText;
-  currentTotal = (parseFloat(currentTotal) + deltaTotal).toFixed(2);
-  
-  var totalStrings = currentTotal.split(".");
-  dollarElement.innerText = totalStrings[0];
-  centsElement.innerText = totalStrings[1];
+  var totalStrings = (newSubtotal + tip).toFixed(2).split(".");
+  person.find(".Dollar")[0].innerText = totalStrings[0];
+  person.find(".Cents")[0].innerText = totalStrings[1];
 }

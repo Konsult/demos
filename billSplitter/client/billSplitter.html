@@ -23,7 +23,7 @@
       </div>
     </div>
     <div class="PersonTotal">
-      <div class="Label TaxTip">+ Tax &amp; Tip</div>
+      <div class="Label TaxTip">+ Tax &amp; $<span id="tipAmount">0.00</span>&nbsp;Tip</div>
       <div class="Label">My Share&nbsp;</div>
       <div class="Amount">= $<span class="Dollar">0</span>.<span class="Cents">00</span></div>
     </div>
@@ -54,13 +54,13 @@
         <div class="Label">&nbsp;&amp; Tip&nbsp;</div>
         <select name="tip" id="tipInput" class="Input">
           <option value="0">0%</option>
-          <option value="5">5%</option>
-          <option value="10">10%</option>
-          <option value="12">12%</option>
-          <option value="15" selected>15%</option>
-          <option value="17">17%</option>
-          <option value="20">20%</option>
-          <option value="25">25%</option>
+          <option value="0.05">5%</option>
+          <option value="0.1">10%</option>
+          <option value="0.12">12%</option>
+          <option value="0.15" selected>15%</option>
+          <option value="0.17">17%</option>
+          <option value="0.20">20%</option>
+          <option value="0.25">25%</option>
         </select>
       </div>
       <div id="tax">
