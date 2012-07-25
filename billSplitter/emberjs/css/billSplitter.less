@@ -1,0 +1,249 @@
+@screenWidth: 320px;
+@screenHeight: 460px;
+@containerHeight: @screenHeight - @taxAndTipHeight;
+
+// Defined by Boostrap.
+@inputHeight: 28px;
+@iconLength: 14px;
+
+@personMargin: 20px;
+@personWidth: 180px;
+@personHeight: 300px;
+@personTotalHeight: 65px;
+
+@taxAndTipHeight: 50px;
+
+html, body {
+  width: 100%;
+  overflow: hidden;
+}
+
+body {
+  background-color: black;
+  background-image: url('../images/low_contrast_linen.png');
+
+  font-weight: bold;
+  text-shadow: 0 1px 0 white;
+  line-height: @inputHeight;
+}
+
+#PersonContainer {
+  @horizontalPadding: (@screenWidth - @personWidth)/2;
+  position: relative;
+  width: 0;
+  top: 0;
+  box-sizing: content-box;
+  padding: 0 0 0 @horizontalPadding - @personMargin;
+
+  .Person {
+    @padding: 10px;
+
+    position: relative;
+    background-color: white;
+    background-image: -webkit-linear-gradient(transparent, rgba(0, 0, 0, 0.1)),
+                      url('../images/lightpaperfibers.png');
+
+    width: @personWidth;
+    height: @personHeight;
+    margin: @personMargin @personMargin 0 @personMargin;
+    display: inline-block;
+
+    box-sizing: border-box;
+    padding: @padding @padding 0 @padding;
+
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+
+    -webkit-animation: FadeIn 0.25s both ease-in-out;
+
+    .PersonIcon {
+      @padding: 5px;
+      position: relative;
+      margin: 0 auto 10px auto;
+      display: block;
+
+      box-sizing: border-box;
+      padding: @padding;
+
+      width: @iconLength + 2 * @padding;
+      height: @iconLength + 2 * @padding;
+
+      border-radius: 50%;
+
+      .Icon {
+        position: absolute;
+        top: @padding;
+      }
+    }
+
+    .PersonTotal {
+      @smallerFont: 14px;
+
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: @personTotalHeight;
+      padding: @padding;
+      box-sizing: border-box;
+
+      clear: both;
+
+      font-size: 18px;
+      line-height: 20px;
+
+      .Label {
+        float: left;
+      }
+      .Amount {
+        float: right;
+        text-align: right;
+      }
+      .Cents {
+        font-size: @smallerFont;
+      }
+      .Label.TaxTip {
+        clear: both;
+        width: 100%;
+        text-align: right;
+
+        color: fade(black, 50%);
+        font-weight: normal;
+
+        font-size: @smallerFont;
+      }
+
+    }
+
+    .ItemContainer {
+      position: absolute;
+      top: @inputHeight + @padding / 2;
+      left: 0;
+      right: 0;
+      bottom: @personTotalHeight;
+
+      overflow: hidden;
+
+      .ScrollableItemList {
+        position: relative;
+        overflow: auto;
+
+        width: 100%;
+        height: 100%;
+
+        padding: @padding/2 @padding @padding @padding;
+        box-sizing: border-box;
+
+        z-index: 1;
+
+        .ItemPrice {
+          clear: both;
+          text-align: right;
+
+          input {
+            float: right;
+            text-align: right;
+            padding: 5px;
+            width: 70px;
+          }
+        }
+      }
+
+      .TopShadow {
+        @shadowSize: 5px;
+
+        position: absolute;
+        top: 0;
+        left: -@shadowSize;
+        right: -@shadowSize;
+        height: 1px;
+        background-color: fade(black, 25%);
+        box-shadow: 0 0 @shadowSize black;
+
+        z-index: 2;
+
+        display: none;
+      }
+
+      .BottomShadow {
+        .TopShadow;
+        bottom: 0;
+        top: auto;
+      }
+    }
+  }
+
+  .AddPersonButton {
+    @width: 40px;
+
+    position: relative;
+    float: right;
+
+    box-sizing: border-box;
+    width: @width;
+
+    margin-top: @personMargin;
+    margin-left: @horizontalPadding - @width;
+
+    vertical-align: top;
+
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+
+    box-shadow: 0 5px 10px fadeout(black, 50%);
+  }
+}
+
+#scrollableContainer {
+  position: absolute;
+  width: 100%;
+  top: @taxAndTipHeight;
+  left: 0;
+  bottom: 0;
+
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+#taxAndTip {
+  @padding: 10px;
+
+  position: fixed;
+  top:   0;
+  width: 100%;
+  height: @taxAndTipHeight;
+
+  background-color: fade(rgb(255, 250, 245), 95%);
+  background-image: -webkit-linear-gradient(fade(white, 50%), fade(white, 20%) 50%, transparent 50%, fade(black, 10%));
+
+  box-sizing: border-box;
+  padding: @padding;
+
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.5);
+
+  z-index: 3;
+
+  clear: both;
+
+  #taxAndTipInnerContainer {
+    max-width: @screenWidth;
+    height: 100%;  
+    margin: auto;  
+  }
+
+  * {
+    float: left;
+  }
+
+  .CurrencyInput[name="total"], .CurrencyInput[name="tax"] {
+    width: 50px;
+  }
+
+  select[name="tip"] {
+    width: 60px;
+  }
+}
+
+.CurrencyInput {
+  -webkit-tap-highlight-color: transparent;
+}
