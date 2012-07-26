@@ -1,19 +1,57 @@
 App.TotalTaxAndTip = Em.View.extend({
   templateName: "total-tax-and-tip",
 
-  tip: null,
-  total: null,
-  tax: null,
+  tipView: null,
+  totalView: null,
+  taxView: null,
+
+  tip: function () {
+    var view = this.get("tipView");
+    if (!view)
+      return 0;
+
+    var selection = view.get("selection");
+    if (!selection)
+      return 0;
+    return selection.value;
+  }.property("tipView.selection"),
+
+  tax: function () {
+    var view = this.get("taxView");
+    if (!view)
+      return 0;
+    var tax = parseFloat(view.get("value"));
+    if (isNaN(tax))
+      return 0;
+    return tax;
+  }.property("taxView.value"),
+
+  total: function () {
+    var view = this.get("totalView");
+    if (!view)
+      return 0;
+    var total = parseFloat(view.get("value"));
+    if (isNaN(total))
+      return 0;
+    return total;
+  }.property("totalView.value"),
+
+  taxPercentage: function () {
+    var total = this.get("total");
+    if (!total)
+      return NaN;
+    return this.get("tax") / total;
+  }.property("tax, total"),
 
   createChildView: function (viewClass, attrs) {
     var view = this._super(viewClass, attrs);
     var name = view.get("name");
     if (name === "total")
-      this.set("total", view);
+      this.set("totalView", view);
     else if (name === "tip")
-      this.set("tip", view);
+      this.set("tipView", view);
     else if (name === "tax")
-      this.set("tax", view);
+      this.set("taxView", view);
 
     return view;
   },
@@ -45,16 +83,35 @@ App.PersonView = Em.View.extend({
   person: null, // Will be bound when view is inserted.
 
   tipAmount: function () {
-    var tip = 0;
-    try {
-      tip = App.totalTaxAndTip.tip.selection.value;
-    } catch (e) {};
+    var tip = App.totalTaxAndTip.get("tip");
 
     return (tip * this.get("person").get("totalWithoutTaxOrTip")).toFixed(2);
-  }.property("person.totalWithoutTaxOrTip", "App.totalTaxAndTip.tip.selection"),
+  }.property("person.totalWithoutTaxOrTip", "App.totalTaxAndTip.tip"),
 
-  totalDollar: "0",
-  totalCents: "00",
+  taxAmount: function () {
+    var tax = App.totalTaxAndTip.get("taxPercentage");
+    if (!isNaN(tax))
+      return tax * this.get("person").get("totalWithoutTaxOrTip");
+
+    // Don't know percentage, so just evenly split between people.
+    tax = App.totalTaxAndTip.get("tax");
+    return tax / App.people.length;
+
+  }.property("App.people", "person.totalWithoutTaxOrTip", "App.totalTaxAndTip.tax", "App.totalTaxAndTip.total"),
+
+  totalAmount: function () {
+    var tip = parseFloat(this.get("tipAmount"));
+    var subtotal = this.get("person").get("totalWithoutTaxOrTip");
+    var tax = this.get("taxAmount");
+    return (tip + subtotal + tax).toFixed(2);
+  }.property("person.totalWithoutTaxOrTip", "tipAmount", "taxAmount"),
+
+  totalDollar: function () {
+    return this.get("totalAmount").split(".")[0];
+  }.property("totalAmount"),
+  totalCents: function () {
+    return this.get("totalAmount").split(".")[1];
+  }.property("totalAmount"),
 
   personChanged: function () {
     this.get("person").set("view", this);
