@@ -28,17 +28,18 @@ body {
 }
 
 #PersonContainer {
-  @horizontalPadding: (@screenWidth - @personWidth)/2;
+  @horizontalPadding: (@screenWidth - @personWidth)/2 - @personMargin;
   position: relative;
   width: 0;
   top: 0;
   box-sizing: content-box;
-  padding: 0 0 0 @horizontalPadding - @personMargin;
+  padding: 0 @horizontalPadding 0 @horizontalPadding;
 
   .Person {
     @padding: 10px;
 
     position: relative;
+    display: inline-block;
     background-color: white;
     background-image: -webkit-linear-gradient(transparent, rgba(0, 0, 0, 0.1)),
                       url('../images/lightpaperfibers.png');
@@ -46,7 +47,6 @@ body {
     width: @personWidth;
     height: @personHeight;
     margin: @personMargin @personMargin 0 @personMargin;
-    display: inline-block;
 
     box-sizing: border-box;
     padding: @padding @padding 0 @padding;
@@ -173,25 +173,25 @@ body {
     }
   }
 
-  .AddPersonButton {
-    @width: 40px;
+}
 
-    position: relative;
-    float: right;
+.AddPersonButton {
+  @width: 40px;
 
-    box-sizing: border-box;
-    width: @width;
+  position: relative;
+  float: right;
 
-    margin-top: @personMargin;
-    margin-left: @horizontalPadding - @width;
+  box-sizing: border-box;
+  width: @width;
 
-    vertical-align: top;
+  margin-top: @personMargin + @taxAndTipHeight;
 
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
+  vertical-align: top;
 
-    box-shadow: 0 5px 10px fadeout(black, 50%);
-  }
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+
+  box-shadow: 0 5px 10px fadeout(black, 50%);
 }
 
 #scrollableContainer {

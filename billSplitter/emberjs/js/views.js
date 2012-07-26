@@ -1,3 +1,12 @@
+App.AddPersonButton = Em.View.extend({
+  templateName: "add-person-button",
+  classNames: ["AddPersonButton", "btn"],
+
+  click: function (e) {
+    App.addPerson();
+  },
+});
+
 App.TotalTaxAndTip = Em.View.extend({
   templateName: "total-tax-and-tip",
 
@@ -116,6 +125,10 @@ App.PersonView = Em.View.extend({
   personChanged: function () {
     this.get("person").set("view", this);
   }.observes("person"),
+
+  didInsertElement: function () {
+    App.addedPersonView(this);
+  },
 });
 
 

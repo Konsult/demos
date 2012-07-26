@@ -9,11 +9,21 @@ var App = Em.Application.create({
     App.get("people").pushObject(person);
   },
 
+  addedPersonView: function (view) {
+    // FIXME: Some math is wrong so that the 4th person always falls on the 2ns line
+    // FIXME: Adding a person adds an item to every person
+    // FIXME: Adding a person breaks responsiveness for people
+    var personContainer = $("#PersonContainer");
+    var personWidth = view.$().outerWidth(true);
+    personContainer.width(personContainer.width() + personWidth);
+  },
+
   ready: function () {
-    App.totalTaxAndTip = App.TotalTaxAndTip.create({
-      templateName: "total-tax-and-tip",
-    });
+    App.totalTaxAndTip = App.TotalTaxAndTip.create();
     App.totalTaxAndTip.appendTo($("body"));
+
+    App.addPersonButton = App.AddPersonButton.create();
+    App.addPersonButton.appendTo($("body"));
 
     App.addPerson();
   },
