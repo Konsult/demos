@@ -4,18 +4,27 @@ var App = Em.Application.create({
   totalTaxAndTip: null,
 
   addPerson: function () {
-    var person = App.Person.create();
+    var person = App.Person.create({
+      items: [],
+    });
     person.addItem();
     App.get("people").pushObject(person);
   },
 
   addedPersonView: function (view) {
-    // FIXME: Some math is wrong so that the 4th person always falls on the 2ns line
     // FIXME: Adding a person adds an item to every person
     // FIXME: Adding a person breaks responsiveness for people
     var personContainer = $("#PersonContainer");
     var personWidth = view.$().outerWidth(true);
     personContainer.width(personContainer.width() + personWidth);
+
+    // Don't scroll if this is during initialization.
+    if (App.people.length < 3)
+      return;
+
+    $("#scrollableContainer").animate({
+      scrollLeft: personContainer.outerWidth(true),
+    }, 500);
   },
 
   ready: function () {
@@ -25,6 +34,7 @@ var App = Em.Application.create({
     App.addPersonButton = App.AddPersonButton.create();
     App.addPersonButton.appendTo($("body"));
 
+    App.addPerson();
     App.addPerson();
   },
 });

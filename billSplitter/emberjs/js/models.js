@@ -1,7 +1,7 @@
 App.Person = Em.Object.extend({
   view: null, // Will be set by PersonView
 
-  items: [], // Array of Items
+  items: null, // Array of Items
 
   totalWithoutTaxOrTip: function () {
     var sum = 0;
