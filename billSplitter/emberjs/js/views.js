@@ -89,6 +89,7 @@ App.PersonView = Em.View.extend({
   templateName: "person",
   classNames:["Person"],
 
+  id: null, // Will be set by constructor.
   person: null, // Will be bound when view is inserted.
 
   tipAmount: function () {

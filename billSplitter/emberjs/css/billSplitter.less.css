@@ -58,22 +58,21 @@ body {
     -webkit-animation: FadeIn 0.25s both ease-in-out;
 
     .PersonIcon {
-      @padding: 5px;
       position: relative;
       margin: 0 auto 10px auto;
       display: block;
 
       box-sizing: border-box;
-      padding: @padding;
 
-      width: @iconLength + 2 * @padding;
       height: @iconLength + 2 * @padding;
+
+      text-align: center;
 
       border-radius: 50%;
 
       .Icon {
-        position: absolute;
-        top: @padding;
+        position: relative;
+        display: inline-block;
       }
     }
 

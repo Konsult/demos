@@ -5,6 +5,7 @@ var App = Em.Application.create({
 
   addPerson: function () {
     var person = App.Person.create({
+      id: App.people.length + 1,
       items: [],
     });
     person.addItem();
