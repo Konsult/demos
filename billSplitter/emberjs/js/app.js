@@ -23,7 +23,7 @@ var App = Em.Application.create({
     if (App.people.length < 3)
       return;
 
-    $("#scrollableContainer").animate({
+    $("#scrollablePersonContainer").animate({
       scrollLeft: personContainer.outerWidth(true),
     }, 500);
   },

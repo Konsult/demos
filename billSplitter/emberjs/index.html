@@ -36,9 +36,6 @@
   </script>
 
   <script data-template-name="person" type="text/x-handlebars">
-    <div class="PersonIcon">
-      <div class="Icon icon-user"></div>&nbsp;{{person.id}}
-    </div>
     <div class="ItemContainer">
       <div class="BottomShadow"></div>
       <div class="TopShadow"></div>
@@ -48,20 +45,12 @@
         {{/each}}
       </div>
     </div>
-    <div class="PersonTotal">
-      <div class="Label TaxTip">
-        + Tax &amp; $<span id="tipAmount">{{tipAmount}}</span>&nbsp;Tip
-      </div>
-      <div class="Label">My Share&nbsp;</div>
-      <div class="Amount">
-        = $<span class="Dollar">{{totalDollar}}</span>.<span class="Cents">{{totalCents}}</span>
-      </div>
+    <div class="PersonIcon">
+      <div class="Icon icon-user"></div>&nbsp;{{person.id}}
     </div>
-  </script>
-
-  <script data-template-name="item" type="text/x-handlebars">
-    $&nbsp;
-    {{view App.CurrencyInput name="itemPrice" placeholder="Item Price"}}
+    <div {{bindAttr class="personTotalClass"}}>
+        ${{totalDollar}}.<span class="Cents">{{totalCents}}</span>
+    </div>
   </script>
 
   <script data-template-name="add-person-button" type="text/x-handlebars">
@@ -70,13 +59,18 @@
   </script>
 </head>
 <body>
-  <div id="scrollableContainer">
+  <div id="scrollablePersonContainer">
     <div id="PersonContainer">
       <script type="text/x-handlebars">
         {{#each App.people}}
           {{view App.PersonView personBinding="this"}}
         {{/each}}
       </script>
+    </div>
+  </div>
+  <div id="dishesSectionContainer">
+    <div id="dishesSectionHeader">Shared Dishes:</div>
+    <div id="scrollableDishesContainer">
     </div>
   </div>
 

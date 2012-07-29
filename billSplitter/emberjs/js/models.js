@@ -16,21 +16,35 @@ App.Person = Em.Object.extend({
 
   }.property("items.@each.value"),
 
+  tip: function () {
+    return App.totalTaxAndTip.get("tip") * this.get("totalWithoutTaxOrTip");
+  }.property("totalWithoutTaxOrTip", "App.totalTaxAndTip"),
+
+  tax: function () {
+    var tax = App.totalTaxAndTip.get("taxPercentage");
+    if (!isNaN(tax))
+      return tax * this.get("totalWithoutTaxOrTip");
+
+    // Don't know percentage, so just evenly split between people.
+    tax = App.totalTaxAndTip.get("tax");
+    return tax / App.people.length;
+  }.property("App.people", "totalWithoutTaxOrTip", "App.totalTaxAndTip.tax", "App.totalTaxAndTip.total"), 
+
   removeItem: function (item) {
     var items = this.get("items");
-    if (item !== items[items.length - 1])
+    if (item !== items[0])
       items.removeObject(item);
   },
 
   addItem: function () {
-    this.get("items").pushObject(App.Item.create({
+    this.get("items").unshiftObject(App.Item.create({
       person: this,
     }));
   },
 
   itemFocusIn: function (item) {
     var items = this.get("items");
-    if (item === items[items.length - 1])
+    if (item === items[0])
       this.addItem();
   },
 });
@@ -43,11 +57,8 @@ App.Item = Em.Object.extend({
     var view = this.get("view");
     if (!view)
       return 0;
-    var input = view.get("input");
-    if (!input)
-      return 0;
-    return input.get("value");
-  }.property("view.input.value"),
+    return view.get("value");
+  }.property("view.value"),
 
   focusIn: function (e) {
     this.get("person").itemFocusIn(this);

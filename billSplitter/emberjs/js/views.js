@@ -1,3 +1,77 @@
+// FIXME: Break this out so it's a reusable component.
+App.CurrencyInput = Em.TextField.extend({
+  classNames: ["CurrencyInput"],
+  attributeBindings: ["name", "pattern"],
+  type: "text",
+  pattern: "[0-9]*",
+
+  maxLength: 0, // This can be overriden by subclasses. 0 = no max length.
+
+  focusIn: function (e) {
+    var fieldElement = e.target;
+    if (!fieldElement.value)
+      fieldElement.value = "0.00";
+    this.moveSelectionToEnd(fieldElement);
+  },
+
+  focusOut: function (e) {
+    if (!parseFloat(e.target.value))
+      e.target.value = "";
+  },
+
+  keyPress: function (e) {
+    var value = String.fromCharCode(e.charCode);
+
+    if (!value)
+      return;
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    value = parseInt(value);
+    if (isNaN(value))
+      return;
+
+    var fieldElement = e.target;
+
+    // Prevent exceeding the max length.
+    var maxLength = this.get("maxLength");
+    if (maxLength && fieldElement.value.length >= maxLength)
+      return;
+
+    // Compute new value
+    var oldValue = parseFloat(fieldElement.value);
+    if (isNaN(oldValue))
+      oldValue = 0;
+    value = parseFloat(oldValue) * 10 + value / 100;
+    fieldElement.value = value.toFixed(2);
+  },
+
+  keyDown: function (e) {
+    // Override backspace so we maintain the right formatting
+    if(e.keyCode !== "\b".charCodeAt(0))
+      return;
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    var fieldElement = e.target;
+    var oldValue = parseFloat(fieldElement.value);
+    // Round down to the 2nd decimal place
+    fieldElement.value = Math.max(oldValue / 10 - 0.004, 0).toFixed(2);
+  },
+
+  mouseUp: function (e) {
+    // Override WebKit's setting of position to where the mouse clicked.
+    this.moveSelectionToEnd(e.target);
+  },
+
+  moveSelectionToEnd: function (element) {
+    var end = element.value.length;
+    element.setSelectionRange(end, end);
+  },
+});
+
 App.AddPersonButton = Em.View.extend({
   templateName: "add-person-button",
   classNames: ["AddPersonButton", "btn"],
@@ -92,29 +166,23 @@ App.PersonView = Em.View.extend({
   id: null, // Will be set by constructor.
   person: null, // Will be bound when view is inserted.
 
-  tipAmount: function () {
-    var tip = App.totalTaxAndTip.get("tip");
-
-    return (tip * this.get("person").get("totalWithoutTaxOrTip")).toFixed(2);
-  }.property("person.totalWithoutTaxOrTip", "App.totalTaxAndTip.tip"),
-
-  taxAmount: function () {
-    var tax = App.totalTaxAndTip.get("taxPercentage");
-    if (!isNaN(tax))
-      return tax * this.get("person").get("totalWithoutTaxOrTip");
-
-    // Don't know percentage, so just evenly split between people.
-    tax = App.totalTaxAndTip.get("tax");
-    return tax / App.people.length;
-
-  }.property("App.people", "person.totalWithoutTaxOrTip", "App.totalTaxAndTip.tax", "App.totalTaxAndTip.total"),
-
   totalAmount: function () {
-    var tip = parseFloat(this.get("tipAmount"));
-    var subtotal = this.get("person").get("totalWithoutTaxOrTip");
-    var tax = this.get("taxAmount");
+    var person = this.get("person");
+    if (!person)
+      return "0.00";
+
+    var tip = person.get("tip");
+    var subtotal = person.get("totalWithoutTaxOrTip");
+    var tax = person.get("tax");
     return (tip + subtotal + tax).toFixed(2);
-  }.property("person.totalWithoutTaxOrTip", "tipAmount", "taxAmount"),
+  }.property("person.totalWithoutTaxOrTip", "person.tip", "person.tax"),
+
+  personTotalClass: function() {
+    var totalDollar = this.get("totalDollar");
+    if (totalDollar && totalDollar.length > 3)
+      return "PersonTotal Small";
+    return "PersonTotal Big";
+  }.property("totalDollar"),
 
   totalDollar: function () {
     return this.get("totalAmount").split(".")[0];
@@ -132,10 +200,11 @@ App.PersonView = Em.View.extend({
   },
 });
 
-
-App.ItemView = Em.View.extend({
-  templateName: "item",
+App.ItemView = App.CurrencyInput.extend({
   classNames: ["ItemPrice"],
+  name: "itemPrice",
+  placeholder: "+",
+  maxLength: 7,
 
   item: null, // Will be bound when view is inserted
   input: null, // Will be bound when view is created
@@ -145,6 +214,7 @@ App.ItemView = Em.View.extend({
   }.observes("item"),
 
   focusIn: function (e) {
+    this._super(e);
     this.get("item").focusIn(e);
   },
 
@@ -162,66 +232,5 @@ App.ItemView = Em.View.extend({
   },
 });
 
-// FIXME: Break this out so it's a reusable component.
-App.CurrencyInput = Em.TextField.extend({
-  classNames: ["CurrencyInput"],
-  attributeBindings: ["name", "pattern"],
-  type: "text",
-  pattern: "[0-9]*",
 
-  focusIn: function (e) {
-    var fieldElement = e.target;
-    if (!fieldElement.value)
-      fieldElement.value = "0.00";
-    this.moveSelectionToEnd(fieldElement);
-  },
-
-  focusOut: function (e) {
-    if (!parseFloat(e.target.value))
-      e.target.value = "";
-  },
-
-  keyPress: function (e) {
-    var value = String.fromCharCode(e.charCode);
-
-    if (!value)
-      return;
-
-    e.preventDefault();
-    e.stopPropagation();
-
-    value = parseInt(value);
-    if (isNaN(value))
-      return;
-
-    // Compute new value
-    var fieldElement = e.target;
-    var oldValue = parseFloat(fieldElement.value);
-    value = parseFloat(oldValue) * 10 + value / 100;
-    fieldElement.value = value.toFixed(2);
-  },
-
-  keyDown: function (e) {
-    // Override backspace so we maintain the right formatting
-    if(e.keyCode !== "\b".charCodeAt(0))
-      return;
-
-    e.preventDefault();
-    e.stopPropagation();
-
-    var fieldElement = e.target;
-    var oldValue = parseFloat(fieldElement.value);
-    var value = Math.min(oldValue / 10);
-    fieldElement.value = (value).toFixed(2);
-  },
-
-  mouseUp: function (e) {
-    // Override WebKit's setting of position to where the mouse clicked.
-    this.moveSelectionToEnd(e.target);
-  },
-
-  moveSelectionToEnd: function (element) {
-    var end = element.value.length;
-    element.setSelectionRange(end, end);
-  },
 });
