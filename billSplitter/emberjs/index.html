@@ -71,6 +71,11 @@
   <div id="dishesSectionContainer">
     <div id="dishesSectionHeader">Shared Dishes:</div>
     <div id="scrollableDishesContainer">
+      <script type="text/x-handlebars">
+        {{#each App.sharedItems}}
+          {{view App.DraggableItemView itemBinding="this"}}
+        {{/each}}
+      </script>
     </div>
   </div>
 

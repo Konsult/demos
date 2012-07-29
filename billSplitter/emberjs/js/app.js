@@ -1,6 +1,8 @@
 var App = Em.Application.create({
   // Array of type App.Person
   people: [],
+  // Array of type App.DraggableItemView
+  sharedItems: [],
   totalTaxAndTip: null,
 
   addPerson: function () {
@@ -28,6 +30,18 @@ var App = Em.Application.create({
     }, 500);
   },
 
+  sharedItemFocusIn: function (item) {
+    var items = this.get("sharedItems");
+    // If this is the item, add another item after it.
+    if (item === items[items.length - 1])
+      items.pushObject(App.SharedItem.create());
+  },
+
+  sharedItemFocusOut: function(item) {
+    if (!item.get("value"))
+      this.get("sharedItems").removeObject(item);
+  },
+
   ready: function () {
     App.totalTaxAndTip = App.TotalTaxAndTip.create();
     App.totalTaxAndTip.appendTo($("body"));
@@ -37,5 +51,7 @@ var App = Em.Application.create({
 
     App.addPerson();
     App.addPerson();
+
+    this.get("sharedItems").pushObject(App.SharedItem.create());
   },
 });

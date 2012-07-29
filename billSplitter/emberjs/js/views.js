@@ -207,7 +207,6 @@ App.ItemView = App.CurrencyInput.extend({
   maxLength: 7,
 
   item: null, // Will be bound when view is inserted
-  input: null, // Will be bound when view is created
 
   itemChanged: function () {
     this.get("item").set("view", this);
@@ -221,16 +220,7 @@ App.ItemView = App.CurrencyInput.extend({
   focusOut: function (e) {
       this.get("item").focusOut(e);
   },
-
-  createChildView: function (viewClass, attrs) {
-    var view = this._super(viewClass, attrs);
-
-    if (view.classNames.contains("CurrencyInput"))
-      this.set("input", view);
-
-    return view;
-  },
 });
 
-
+App.DraggableItemView = App.ItemView.extend({
 });
