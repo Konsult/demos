@@ -118,6 +118,7 @@ input.ItemPrice {
       bottom: @personTotalHeight + @personIconHeight;
 
       overflow: hidden;
+      text-align: center;
 
       .ScrollableItemList {
         position: absolute;
