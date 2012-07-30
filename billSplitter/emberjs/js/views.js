@@ -222,5 +222,150 @@ App.ItemView = App.CurrencyInput.extend({
   },
 });
 
+App.DraggableItemViewPreview = App.ItemView.extend({
+  originalView: null, // DraggableItemView. Set on creation.
+  classNames: ["DraggedView"],
+  value: "Drop to share",
+
+  didInsertElement: function () {
+    var jElement = this.$();
+    jElement.css("background-color", this.get("originalView").$().css("background-color"));
+
+    var root = $(App.rootElement);
+    var originalView = this.get("originalView");
+    var data = this.get("originalView").constructEventData();
+    root.on("vmousecancel", data, originalView.cancelDrag);
+    root.on("vmouseup", data, originalView.finishDrag);
+    root.on("vmousemove", data, this.continueDrag);
+    root.one("taphold", "#" + jElement.attr("id"), data, this.continueDrag);
+  },
+
+  continueDrag: function (jEvent) {
+    var myJView = jEvent.data.draggableItemView.get("draggedView").$();
+    myJView.css("left", jEvent.pageX - myJView.width() / 2);
+    myJView.css("top", jEvent.pageY - myJView.height());
+    myJView.css("display", "block");
+
+    debug("continueDrag:" + jEvent.pageX + ", " + jEvent.pageY);
+  
+    jEvent.preventDefault();
+    jEvent.stopPropagation();
+  }.observes("originalView.lastMouseX", "originalView.lastMouseY"),
+
+  removeFromParent: function () {
+    this._super();
+
+    var root = $(App.rootElement);
+    var originalView = this.get("originalView");
+    root.off("vmousecancel", originalView.cancelDrag);
+    root.off("vmouseup", originalView.finishDrag);
+    root.off("vmousemove", this.continueDrag);
+    root.off("taphold", this.continueDrag);
+  },
+});
+
 App.DraggableItemView = App.ItemView.extend({
+  initializedMobileEventListeners: false,
+  moveToDrag: false,
+  draggedView: null, // DraggableItemViewPreview, Only non-null during a drag.
+  lastMouseX: 0,
+  lastMouseY: 0,
+
+  constructEventData: function () {
+    return {draggableItemView: this};
+  },
+
+  focusIn: function (e) {
+    if (this.get("moveToDrag"))
+      this.cancelDrag();
+
+    if (!this.get("initializedMobileEventListeners")) {
+      // FIXME: Technically this should be didInsertElement, but for some reason
+      // didInsertElement never gets called.
+      
+      // This is really hackish, b/c I have to convert the jQuery events
+      // in these handlers back into Ember objects. Is there a better way to do this?
+      this.$().on("vmousedown", this.constructEventData(), this.prepareToDrag);
+      this.set("initializedMobileEventListeners", true);
+    }
+    return this._super(e);
+  },
+
+  prepareToDrag: function (jEvent) {
+    var self = jEvent.data.draggableItemView;
+    
+    // No point in dragging empty items.
+    if (!parseFloat(self.get("value")))
+      return;
+
+    var data = self.constructEventData();
+    var view = self.$();
+    view.one("vmousemove", data, self.startDrag);
+    view.one("vmouseup", data, self.pressed);
+    view.one("vmousecancel", data, self.cancelDrag);
+
+    self.set("moveToDrag", true);
+
+    jEvent.preventDefault();
+    jEvent.stopPropagation();
+  },
+
+  pressed: function (jEvent) {
+    var self = jEvent.data.draggableItemView;
+    self.$().focus();
+  },
+
+  startDrag: function (jEvent) {
+      var self = jEvent.data.draggableItemView;
+      if (!self.get("moveToDrag") || self.get("draggedView"))
+        return;
+
+    draggedView = App.DraggableItemViewPreview.create({
+      originalView: self,
+    });
+
+    self.set("draggedView", draggedView);
+    draggedView.appendTo($(App.rootElement));
+
+    // If we started dragging, then that means it can't be a press.
+    self.$().off("vmouseup", self.pressed);
+    debug("startDrag");
+  },
+
+  finishDrag: function (jEvent) {
+    var self = jEvent.data.draggableItemView;
+    self.cleanupDrag();
+    debug("finishDrag");
+  },
+
+  cancelDrag: function (jEvent) {
+    var self = jEvent ? jEvent.data.draggableItemView : this;
+
+    if (!self.get("moveToDrag"))
+      return;
+
+    // Prevent the input element from canceling its own drag on iOS.
+    if (jEvent && jEvent.target && $(jEvent.target).is("input"))
+      return;
+
+    self.cleanupDrag();
+
+    debug("cancelDrag");
+  },
+
+  cleanupDrag: function() {
+    var view = this.$();
+    view.off("vmousemove", this.startDrag);
+    view.off("vmouseup", this.pressed);
+    view.off("vmousecancel", this.cancelDrag);
+
+    var draggedView = this.get("draggedView");
+    if (draggedView) {
+      draggedView.removeFromParent();
+      this.set("moveToDrag", false);
+      this.set("draggedView", null);
+    }
+
+    debug("cleanupDrag");
+  }
 });

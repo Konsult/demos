@@ -10,10 +10,17 @@
 
 @taxAndTipHeight: 50px;
 
+@inputWidth: 50px;
+@inputHeight: 18px;
+
 html, body {
   width: 100%;
   height: 100%;
   overflow: hidden;
+}
+
+* {
+  -webkit-user-select: none;
 }
 
 body {
@@ -33,8 +40,33 @@ input.ItemPrice {
   border-radius: 50%;
 
   padding: 5px;
-  width: 50px;
+  width: @inputWidth;
+  height: @inputHeight;
   margin: 5px 0 0 0;
+}
+
+@-webkit-keyframes scaleAndLift
+{
+  0% {
+    -webkit-transform: scale(0.5);
+  }
+
+  100% {
+    -webkit-transform: translateY(-100%);
+    box-shadow: 0 (2 * @inputHeight) 5px fadeout(black, 75%);
+  }
+}
+
+input.DraggedView {
+  position: absolute;
+  z-index: 10000;
+
+  display: none; // Overriden by javascript when this view is ready.
+
+  width: 2 * @inputWidth;
+  height: 2 * @inputHeight;
+  line-height: 2 * @inputHeight;
+  -webkit-animation: scaleAndLift 0.15s both ease-out;
 }
 
 #PersonContainer > div {
@@ -275,4 +307,5 @@ input.ItemPrice {
 
 .CurrencyInput {
   -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
 }

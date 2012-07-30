@@ -1,6 +1,15 @@
+var debugging = false;
+
+function debug (string) {
+  if (debugging)
+    console.log(string);
+}
+
 var App = Em.Application.create({
   // Array of type App.Person
   people: [],
+  personUnderMouse: null,
+
   // Array of type App.DraggableItemView
   sharedItems: [],
   totalTaxAndTip: null,
