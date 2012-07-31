@@ -228,6 +228,8 @@ App.DraggableItemViewPreview = App.ItemView.extend({
   value: "Drop to share",
 
   didInsertElement: function () {
+    this._super();
+
     var jElement = this.$();
     jElement.css("background-color", this.get("originalView").$().css("background-color"));
 

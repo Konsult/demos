@@ -98,6 +98,7 @@ App.SharedItem = App.Item.extend({
   viewChanged: function () {
     this.get("view").reopen({
       didInsertElement: function () {
+        this._super();
         // Give each view a unique background color.
         var randomHue = Math.round(Math.random() * 255);
         this.$().css("background-color", "hsl(" + randomHue + ", 100%, 95%)");
