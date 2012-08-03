@@ -209,7 +209,7 @@ SafeBoxDial.Dial = Em.ContainerView.extend({
     }
 
     // Returns 0 to 360, where 0 points up.
-    return ((Math.atan2(point.y - center.y, point.x - center.x) * 180 / Math.PI) + 450) % 360;
+    return degreesFromUp(center.x, center.y, point.x, point.y);
   },
 });
 
