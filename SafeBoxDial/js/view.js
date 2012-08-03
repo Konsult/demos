@@ -84,6 +84,9 @@ SafeBoxDial.Dial = Em.ContainerView.extend({
   },
 
   rotate: function (rotation) {
+    var oldRotation = this.get("rotation");
+    rotation = oldRotation + smallestDeltaInDegrees(oldRotation, rotation);
+
     this.set("rotation", rotation);
     var rotationCss = "rotate(" + rotation + "deg)";
     this.get("container").$().css({
@@ -95,16 +98,19 @@ SafeBoxDial.Dial = Em.ContainerView.extend({
   },
 
   updateRotationForMove: function (x, y, offset) {
+    var oldRotation = this.get("rotation");
     var rotation = Math.round(this.angleToPoint({x: x, y: y}) - offset);
 
-    // FIXME: Prevent weird spinning when overflowing to 0:
-    // If old was in quadrant 4, and new is in quadrant 1, add 360 to new
-    // If old was in quadrant 1 and new is in quadrant 4, subtract 360 from new
+    if (Math.abs(rotation - oldRotation) < 1)
+      return;
+
     this.rotate(rotation);
 
     // Update currentTick.
-    var normalizedRotation = this.normalizeAngle(rotation);
-    this.updateCurrentTick(this.get("tickCount") - Math.ceil(normalizedRotation / this.get("cachedDegreesPerTick")));
+    var normalizedRotation = normalizeDegrees(rotation);
+    var count = this.get("tickCount");
+    var tick = (count - Math.ceil(normalizedRotation / this.get("cachedDegreesPerTick") - 0.5)) % count;
+    this.updateCurrentTick(tick);
   },
 
   touchStart: function (e) {
@@ -201,12 +207,6 @@ SafeBoxDial.Dial = Em.ContainerView.extend({
 
     // Returns 0 to 360, where 0 points up.
     return ((Math.atan2(point.y - center.y, point.x - center.x) * 180 / Math.PI) + 450) % 360;
-  },
-  normalizeAngle: function (angle) {
-    angle = angle % 360;
-    if (angle < 0)
-      angle += 360;
-    return angle;
   },
 });
 
