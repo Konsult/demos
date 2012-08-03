@@ -79,13 +79,20 @@ var SafeBoxDial = Em.Application.create({
 
   reset: function () {
     function resetDial(dial) {
-      dial.$().one("transitionend oTransitionEnd webkitTransitionEnd", function(e) {
-        $(e.currentTarget).removeClass("Reset");
+      var that = dial;
+      function finishReset (e) {
+        that.$().removeClass("Reset");
         $("body").removeClass("Wrong Right");
-      });
+      }
+
+      if (dial.get("currentTick")) {
+        dial.$().one("transitionend oTransitionEnd webkitTransitionEnd", finishReset);
+        dial.rotate(0);
+        dial.updateCurrentTick(0);
+      } else
+        setTimeout(finishReset, 1000);
+
       dial.$().addClass("Reset");
-      dial.rotate(0);
-      dial.updateCurrentTick(0);
     }
 
     resetDial(SafeBoxDial.bigDial);
