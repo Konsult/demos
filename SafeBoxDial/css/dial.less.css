@@ -1,8 +1,20 @@
 @whiteTransparent: fade(white, 0%);
+
 @highlightColor: white;
 @glowColor: hsl((1 - 0.1) * hue(@highlightColor) + 0.1 * hue(yellow), 100%, lightness(lighten(@highlightColor, 10%)));
+
 @textHighlightColor: hsl(220, 100%, 50%);
 @textGlowColor: hsl((1 - 0.1) * hue(@textHighlightColor) + 0.1 * hue(yellow), 100%, lightness(lighten(@textHighlightColor, 10%)));
+
+@rightColor: rgb(0, 255, 0);
+@rightGlowColor: hsl((1 - 0.1) * hue(@rightColor) + 0.1 * hue(yellow), 100%, lightness(lighten(@rightColor, 10%)));
+
+@wrongColor: red;
+@wrongGlowColor: hsl((1 - 0.1) * hue(@wrongColor) + 0.1 * hue(yellow), 100%, lightness(lighten(@wrongColor, 10%)));
+
+html, body {
+  overflow: hidden;
+}
 
 body {
   background-color: #333;
@@ -10,6 +22,8 @@ body {
 
 // Metalic style adapted from https://github.com/simurai/lab/blob/gh-pages/metal/
 .Radial.Metal {
+  overflow: hidden;
+
   border: 1px solid black;
 
   box-sizing: border-box;
@@ -63,7 +77,7 @@ body {
 .Radial.Metal:after {
   transform: rotate(-65deg);
 }
-.Radial.Metal:hover {
+.Radial.Metal.Active {
   border-color: @highlightColor;
   box-shadow: inset 0 0 0 4px @highlightColor,
 
@@ -77,9 +91,25 @@ body {
               0 2px 1px 1px fade(white, 15%);
 }
 
+.Dial, .Dial:before, .Dial:after {
+  transform: translateZ(0);
+}
+
 .Dial {
   position: relative;
   border-radius: 50%;
+
+  user-select: none;
+
+  .TickContainer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+
+  transition: transform 0.1s linear;
+  }
 
   .Tick {
     position: absolute;
@@ -89,7 +119,6 @@ body {
     bottom: 50%;
     margin-left: -1em;
 
-    user-select: none;
     text-align: center;
     font-size: 24px;
     font-weight: bold;
@@ -103,8 +132,46 @@ body {
     text-shadow: 0 0 5px @textGlowColor;
   }
 }
+.Dial.Right {
+  border-color: @rightColor;
+  box-shadow: inset 0 0 0 4px @rightColor,
 
-#container, .BigDial, .MediumDial, .SmallDial {
+              inset 0 -2px 1px 6px fade(black, 25%),
+              inset 0 0 5px 7px @rightGlowColor,
+              inset 0 -2px 5px 4px fade(black, 80%),
+              inset 0 2px 1px 7px white,
+
+              0 0 10px 2px @rightGlowColor,
+              0 -2px 1px 3px fade(black, 15%),
+              0 2px 1px 1px fade(white, 15%);
+
+  .Tick.Selected {
+    color: @rightColor;
+    text-shadow: 0 -1px 0 fade(black, 25%),
+                 0 1px 0 fade(white, 50%);
+  }
+}
+.Dial.Wrong {
+  border-color: @wrongColor;
+  box-shadow: inset 0 0 0 4px @wrongColor,
+
+              inset 0 -2px 1px 6px fade(black, 25%),
+              inset 0 0 5px 7px @wrongGlowColor,
+              inset 0 -2px 5px 4px fade(black, 80%),
+              inset 0 2px 1px 7px white,
+
+              0 0 10px 2px @wrongGlowColor,
+              0 -2px 1px 3px fade(black, 15%),
+              0 2px 1px 1px fade(white, 15%);
+
+  .Tick.Selected {
+    color: @wrongColor;
+    text-shadow: 0 -1px 0 fade(black, 25%),
+                 0 1px 0 fade(white, 50%);
+  }
+}
+
+.BigDial, .MediumDial, .SmallDial {
   position: absolute;
   top: 50%;
   left: 50%;

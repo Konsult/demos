@@ -6,13 +6,7 @@ var SafeBoxDial = Em.Application.create({
   width: 280,
 
   ready: function () {
-    var container = $("#container");
-    container.css({
-      width: this.width + "px",
-      height: this.width + "px",
-      "margin-left": -this.width / 2 + "px",
-      "margin-top": -this.width / 2 + "px",
-    });
+    var container = $("body");
 
     SafeBoxDial.Dial.reopen({
       didInsertElement: function () {
