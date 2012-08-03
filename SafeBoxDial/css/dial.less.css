@@ -171,6 +171,16 @@ body {
   }
 }
 
+.Dial.Reset .TickContainer {
+  transition-duration: 1s;
+  transition-timing-function: ease-in-out;
+
+  .Tick.Selected {
+    color: inherit;
+    text-shadow: none;
+  }
+}
+
 .BigDial, .MediumDial, .SmallDial {
   position: absolute;
   top: 50%;

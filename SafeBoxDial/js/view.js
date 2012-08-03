@@ -119,6 +119,9 @@ SafeBoxDial.Dial = Em.ContainerView.extend({
       return;
     }
 
+    if (this.$().hasClass("Reset"))
+      return;
+
     this.set("isActive", true);
     this.$().addClass("Active");
 

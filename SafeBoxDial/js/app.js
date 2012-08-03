@@ -5,9 +5,9 @@ var SafeBoxDial = Em.Application.create({
   buttonView: null,
 
   // Yah yah, whatever.
-  secret1: 7,
-  secret2: 14,
-  secret3: 1,
+  secret1: 5,
+  secret2: 5,
+  secret3: 5,
 
   width: 280,
 
@@ -79,6 +79,13 @@ var SafeBoxDial = Em.Application.create({
 
   reset: function () {
     function resetDial(dial) {
+      dial.$().one("transitionend oTransitionEnd webkitTransitionEnd", function(e) {
+        $(e.currentTarget).removeClass("Reset");
+        $("body").removeClass("Wrong Right");
+      });
+      dial.$().addClass("Reset");
+      dial.rotate(0);
+      dial.updateCurrentTick(0);
     }
 
     resetDial(SafeBoxDial.bigDial);
