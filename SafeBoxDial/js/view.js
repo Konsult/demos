@@ -195,10 +195,12 @@ SafeBoxDial.Dial = Em.ContainerView.extend({
     if (!center) {
       var el = this.$();
       var offset = el.offset();
-      var center = {x: (offset.left + el.width()) / 2, y: (offset.top + el.height()) / 2}
+      var center = {x: offset.left + el.outerWidth() / 2, y: offset.top + el.outerHeight() / 2}
       this.set("cachedCenter", center);
     }
-    return Math.atan2(point.y - center.y, point.x - center.x) * 180 / Math.PI;
+
+    // Returns 0 to 360, where 0 points up.
+    return ((Math.atan2(point.y - center.y, point.x - center.x) * 180 / Math.PI) + 450) % 360;
   },
   normalizeAngle: function (angle) {
     angle = angle % 360;
