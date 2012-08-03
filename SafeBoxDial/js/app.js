@@ -2,6 +2,12 @@ var SafeBoxDial = Em.Application.create({
   bigDial: null,
   mediumDial: null,
   smallDial: null,
+  buttonView: null,
+
+  // Yah yah, whatever.
+  secret1: 7,
+  secret2: 14,
+  secret3: 1,
 
   width: 280,
 
@@ -27,20 +33,56 @@ var SafeBoxDial = Em.Application.create({
     });
     this.bigDial.appendTo(container);
 
-    var mediumRadius = bigRadius - 40;
+    var mediumRadius = bigRadius - 37;
     this.mediumDial = SafeBoxDial.Dial.create({
-      radius: this.width / 2 - 40,
+      radius: this.width / 2 - 37,
       tickCount: 15,
       classNames: ["MediumDial"],
     });
     this.mediumDial.appendTo(container);
 
-    var smallRadius = mediumRadius - 40;
+    var smallRadius = mediumRadius - 37;
     this.smallDial = SafeBoxDial.Dial.create({
-      radius: this.width / 2 - 40 - 40,
+      radius: this.width / 2 - 37 - 37,
       tickCount: 10,
       classNames: ["SmallDial"],
     });
     this.smallDial.appendTo(container);
+
+    var buttonRadius = smallRadius - 37;
+    this.buttonView = $("<div>Go</div>").addClass("Radial Metal Dial Button");
+    this.buttonView.css({
+      position: "absolute",
+      top: "50%",
+      left: "50%",
+      width: buttonRadius * 2 + "px",
+      height: buttonRadius * 2 + "px",
+      "margin-top": -buttonRadius + "px",
+      "margin-left": -buttonRadius + "px",
+      "z-index": 5,
+    });
+    container.append(this.buttonView);
+
+    this.buttonView.on("click", function (e) {
+      var one = parseInt(Em.View.views[SafeBoxDial.bigDial.$().find(".Tick.Selected").attr("id")].get("number"));
+      var two = parseInt(Em.View.views[SafeBoxDial.mediumDial.$().find(".Tick.Selected").attr("id")].get("number"));
+      var three = parseInt(Em.View.views[SafeBoxDial.smallDial.$().find(".Tick.Selected").attr("id")].get("number"));
+
+      if (one !== SafeBoxDial.secret1 || two !== SafeBoxDial.secret2 || three !== SafeBoxDial.secret3) {
+        $("body").addClass("Wrong");
+      } else
+        $("body").addClass("Right");
+
+      setTimeout(SafeBoxDial.reset, 500);
+    });
+  },
+
+  reset: function () {
+    function resetDial(dial) {
+    }
+
+    resetDial(SafeBoxDial.bigDial);
+    resetDial(SafeBoxDial.mediumDial);
+    resetDial(SafeBoxDial.smallDial);
   },
 });
