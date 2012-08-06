@@ -4,47 +4,63 @@ App.CurrencyInput = Em.TextField.extend({
   attributeBindings: ["name", "pattern"],
   type: "text",
   pattern: "[0-9]*",
+  prefix: "",
+  postfix: "",
+  focusedPlaceholder: "0.00",
 
   maxLength: 0, // This can be overriden by subclasses. 0 = no max length.
+
+  numericValue: function () {
+    return parseFloat(this.numberFromDisplayString(this.get("value")));
+  },
+
+  displayStringForNumber: function (value) {
+    return this.get("prefix") + value + this.get("postfix");
+  },
+
+  numberFromDisplayString: function (value) {
+    return value.substring(this.get("prefix").length, value.length - this.get("postfix").length);
+  },
 
   focusIn: function (e) {
     var fieldElement = e.target;
     if (!fieldElement.value)
-      fieldElement.value = "0.00";
+      fieldElement.value = this.displayStringForNumber(this.get("focusedPlaceholder"));
     this.moveSelectionToEnd(fieldElement);
   },
 
   focusOut: function (e) {
-    if (!parseFloat(e.target.value))
+    if (!parseFloat(this.numberFromDisplayString(e.target.value)))
       e.target.value = "";
   },
 
   keyPress: function (e) {
-    var value = String.fromCharCode(e.charCode);
+    var key = String.fromCharCode(e.charCode);
 
-    if (!value)
+    if (!key)
       return;
 
     e.preventDefault();
     e.stopPropagation();
 
-    value = parseInt(value);
-    if (isNaN(value))
+    key = parseInt(key);
+    if (isNaN(key))
       return;
 
     var fieldElement = e.target;
 
     // Prevent exceeding the max length.
     var maxLength = this.get("maxLength");
-    if (maxLength && fieldElement.value.length >= maxLength)
+    var value = this.numberFromDisplayString(fieldElement.value);
+    if (maxLength && value.length >= maxLength)
       return;
 
     // Compute new value
-    var oldValue = parseFloat(fieldElement.value);
+    var oldValue = parseFloat(value);
     if (isNaN(oldValue))
       oldValue = 0;
-    value = parseFloat(oldValue) * 10 + value / 100;
-    fieldElement.value = value.toFixed(2);
+    value = parseFloat(oldValue) * 10 + key / 100;
+    fieldElement.value = this.displayStringForNumber(value.toFixed(2));
   },
 
   keyDown: function (e) {
@@ -56,9 +72,9 @@ App.CurrencyInput = Em.TextField.extend({
     e.stopPropagation();
 
     var fieldElement = e.target;
-    var oldValue = parseFloat(fieldElement.value);
+    var oldValue = parseFloat(this.numberFromDisplayString(fieldElement.value));
     // Round down to the 2nd decimal place
-    fieldElement.value = Math.max(oldValue / 10 - 0.004, 0).toFixed(2);
+    fieldElement.value = this.displayStringForNumber(Math.max(oldValue / 10 - 0.004, 0).toFixed(2));
   },
 
   mouseUp: function (e) {
@@ -103,7 +119,7 @@ App.TotalTaxAndTip = Em.View.extend({
     var view = this.get("taxView");
     if (!view)
       return 0;
-    var tax = parseFloat(view.get("value"));
+    var tax = parseFloat(view.numberFromDisplayString(view.get("value")));
     if (isNaN(tax))
       return 0;
     return tax;
@@ -113,7 +129,7 @@ App.TotalTaxAndTip = Em.View.extend({
     var view = this.get("totalView");
     if (!view)
       return 0;
-    var total = parseFloat(view.get("value"));
+    var total = parseFloat(view.numberFromDisplayString(view.get("value")));
     if (isNaN(total))
       return 0;
     return total;
@@ -204,7 +220,8 @@ App.ItemView = App.CurrencyInput.extend({
   classNames: ["ItemPrice"],
   name: "itemPrice",
   placeholder: "+",
-  maxLength: 7,
+  maxLength: 6,
+  prefix: "$",
 
   item: null, // Will be bound when view is inserted
 
@@ -218,7 +235,8 @@ App.ItemView = App.CurrencyInput.extend({
   },
 
   focusOut: function (e) {
-      this.get("item").focusOut(e);
+    this._super(e);
+    this.get("item").focusOut(e);
   },
 });
 
@@ -297,7 +315,7 @@ App.DraggableItemView = App.ItemView.extend({
     var self = jEvent.data.draggableItemView;
     
     // No point in dragging empty items.
-    if (!parseFloat(self.get("value")))
+    if (!parseFloat(self.numberFromDisplayString(self.get("value"))))
       return;
 
     var data = self.constructEventData();

@@ -57,7 +57,7 @@ App.Item = Em.Object.extend({
     var view = this.get("view");
     if (!view)
       return 0;
-    var value = parseFloat(view.get("value"));
+    var value = view.numericValue();
     return isNaN(value) ? 0 : value;
   }.property("view.value"),
 
