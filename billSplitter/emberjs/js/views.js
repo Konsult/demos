@@ -156,16 +156,83 @@ App.TotalTaxAndTip = Em.View.extend({
   },
 });
 
+App.TaxField = App.CurrencyInput.extend({
+  classNames: "TaxField",
+  maxLength: 6,
+
+  modes: {
+    "$": { prefix: "$", postfix: "", placeholder: "$0.00", focusedPlaceholder: "0.00" },
+    "%": { prefix: "", postfix: "%", placeholder: "0.00%", focusedPlaceholder: "0.00" },
+    "Auto": { prefix: "", postfix: "", placeholder: "Auto", focusedPlaceholder:"Auto" },
+  },
+  currentMode: "$",
+
+  keyPress: function (e) {
+    if (this.get("currentMode") !== "Auto")
+      return this._super(e);
+
+    // Don't allow entry in auto mode.
+    e.preventDefault();
+    e.stopPropagation();
+  },
+
+  keyDown: function (e) {
+    if (this.get("currentMode") !== "Auto")
+      return this._super(e);
+
+    // Don't allow entry in auto mode.
+    e.preventDefault();
+    e.stopPropagation();
+  },
+
+  modeChanged: function () {
+    var mode = this.modes[this.get("currentMode")];
+    this.set("prefix", mode.prefix);
+    this.set("postfix", mode.postfix);
+    this.set("placeholder", mode.placeholder);
+    this.set("focusedPlaceholder", mode.focusedPlaceholder);
+
+    this.updateTooltip();
+  }.observes("currentMode"),
+
+  updateTooltip: function () {
+    var id = this.$().attr("id");
+    var currentMode = this.get("currentMode");
+
+    var buttons = [];
+    for (var mode in this.modes) {
+      var className = mode === currentMode ? "btn active" : "btn";
+
+      buttons.push('<button class="' + className + 
+                    '" onclick="Em.View.views[\'' + id + '\'].set(\'currentMode\', \'' + mode + '\');">' + 
+                    mode + '</button>');
+    }
+
+    var buttonHTML = '<div class="btn-group">' + buttons.join("") + '</div>';
+
+    this.$().tooltip({
+      placement: "top",
+      trigger: "focus",
+      title: buttonHTML,
+    });
+  },
+
+  didInsertElement: function () {
+    this._super();
+    this.modeChanged();
+  },
+});
+
 App.TipSelect = Em.Select.extend({
   attributeBindings: ["name"],
   content: Em.A([
-      { name: "0%", value: 0, },
-      { name: "5%", value: 0.05, },
-      { name: "10%", value: 0.1, },
-      { name: "15%", value: 0.15, },
-      { name: "17%", value: 0.17, },
-      { name: "20%", value: 0.20, },
-      { name: "25%", value: 0.25, },
+      { name: "No Tip", value: 0, },
+      { name: "5% Tip", value: 0.05, },
+      { name: "10% Tip", value: 0.1, },
+      { name: "15% Tip", value: 0.15, },
+      { name: "17% Tip", value: 0.17, },
+      { name: "20% Tip", value: 0.20, },
+      { name: "25% Tip", value: 0.25, },
     ]),
   optionLabelPath: "content.name",
   optionValuePath: "content.value",

@@ -206,6 +206,8 @@ input.DraggedView {
 
     box-sizing: border-box;
 
+    -webkit-tap-highlight-color: transparent;
+
     background: -webkit-linear-gradient(fade(white, 75%), fade(white, 25%));
     box-shadow: inset 0 2px 2px white;
 
@@ -227,9 +229,9 @@ input.DraggedView {
 #scrollablePersonContainer {
   position: absolute;
   width: 100%;
-  top: @taxAndTipHeight;
+  top: 0;
   left: 0;
-  bottom: 40%;
+  bottom: 50%;
 
   overflow-x: auto;
   overflow-y: hidden;
@@ -243,9 +245,9 @@ input.DraggedView {
 
   position: absolute;
   width: 100%;
-  top: 60%;
+  top: 50%;
   left: 0;
-  bottom: 0;
+  bottom: @taxAndTipHeight;
 
   overflow: hidden;
   -webkit-overflow-scrolling: touch;
@@ -277,45 +279,91 @@ input.DraggedView {
 }
 
 #taxAndTip {
-  @padding: 10px;
+  @padding: 5px;
 
   position: fixed;
-  top:   0;
+  bottom:   0;
   width: 100%;
   height: @taxAndTipHeight;
 
-  background-color: fade(rgb(255, 250, 245), 95%);
   background-image: -webkit-linear-gradient(fade(white, 50%), fade(white, 20%) 50%, transparent 50%, fade(black, 10%));
+  border-top: 1px solid fade(black, 5%);
 
   box-sizing: border-box;
-  padding: @padding;
-
-  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.5);
+  padding: @padding 10px @padding 10px;
 
   z-index: 3;
 
   clear: both;
 
-  #taxAndTipInnerContainer {
-    max-width: @screenWidth;
-    height: 100%;  
-    margin: auto;  
-  }
-
-  * {
-    float: left;
-  }
-
-  .CurrencyInput[name="total"], .CurrencyInput[name="tax"] {
-    width: 50px;
-  }
-
   select[name="tip"] {
-    width: 60px;
+    width: auto;
   }
+
+  #tax, #tip {
+    text-align: left;
+  }
+  #total {
+    text-align: right;
+    font-size: 1.25em;
+    font-weight: normal;
+
+    #grandTotal {
+      font-weight: bold;
+    }
+  }
+
+  #tax, #tip, #total {
+  line-height: @taxAndTipHeight - 2 * @padding;
+
+    select {
+      margin-bottom: 0;
+    }
+  }
+}
+
+#taxAndTip > * {
+  float: left;
+  width: 33%;
+  height: 100%;
+}
+
+.TaxField {
+  width: 50px;
+  text-align: center;
 }
 
 .CurrencyInput {
   -webkit-tap-highlight-color: transparent;
   -webkit-user-select: none;
+}
+
+// Extend Bootstrap's tooltip to look like iOS tooltip
+.tooltip-inner {
+  padding: 0;
+  background-color: black;
+  border-radius: 5px;
+  border: none;
+
+  .btn {
+    border-color: fade(black, 50%);
+    background: black -webkit-linear-gradient(top, fade(white, 50%), fade(white, 15%) 50%, fade(white, 7%) 50%, fade(white, 0%));
+    box-shadow: inset 0 1px 1px fade(white, 25%);
+
+    color: white;
+    font-weight: bold;
+    text-shadow: 0 -1px 0 black;
+
+    line-height: 2em;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .btn:active, .btn.active {
+    background: blue -webkit-linear-gradient(top, fade(white, 50%), fade(white, 25%) 50%, fade(white, 0%) 50%);
+  }
+}
+
+// Override Bootstrap's default add-on color because it's ugly
+.input-prepend .add-on, .input-append .add-on {
+  background-color: fade(white, 75%);
 }
