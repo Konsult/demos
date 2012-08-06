@@ -24,8 +24,6 @@ var App = Em.Application.create({
   },
 
   addedPersonView: function (view) {
-    // FIXME: Adding a person adds an item to every person
-    // FIXME: Adding a person breaks responsiveness for people
     var personContainer = $("#PersonContainer");
     var personWidth = view.$().outerWidth(true);
     personContainer.width(personContainer.width() + personWidth);
