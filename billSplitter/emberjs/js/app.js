@@ -53,8 +53,13 @@ var App = Em.Application.create({
     App.totalTaxAndTip = App.TotalTaxAndTip.create();
     App.totalTaxAndTip.appendTo($("body"));
 
-    App.addPersonButton = App.AddPersonButton.create();
-    App.addPersonButton.appendTo($("body"));
+    var personContainer = $("#PersonContainer");
+    App.addPersonButton = App.AddPersonButton.create({
+      didInsertElement: function () {
+        personContainer.width(personContainer.width() + this.$().outerWidth(true));
+      }
+    });
+    App.addPersonButton.appendTo($("#PersonContainer"));
 
     App.addPerson();
     App.addPerson();

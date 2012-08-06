@@ -193,25 +193,35 @@ input.DraggedView {
     }
   }
 
-}
+  .AddPersonButton {
+    position: absolute;
+    right: 0;
+    bottom: 0;
 
-.AddPersonButton {
-  @width: 40px;
+    height: 50%;
+    width: 50px;
 
-  position: relative;
-  float: right;
+    padding: 0;
+    margin: 5px 5px 0 5px;
 
-  box-sizing: border-box;
-  width: @width;
+    box-sizing: border-box;
 
-  margin-top: @personMargin + @taxAndTipHeight;
+    background: -webkit-linear-gradient(fade(white, 75%), fade(white, 25%));
+    box-shadow: inset 0 2px 2px white;
 
-  vertical-align: top;
-
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
-
-  box-shadow: 0 5px 10px fadeout(black, 50%);
+    .IconContainer {
+      position: relative;
+      top: 50%;
+      margin: -(@iconLength / 2) auto auto auto;
+    }
+  }
+  .AddPersonButton:hover {
+    background: -webkit-linear-gradient(white, fade(white, 50%));
+  }
+  .AddPersonButton:active {
+    background: -webkit-linear-gradient(fade(black, 5%), transparent);
+    box-shadow: inset 0 2px 2px fade(black, 25%);
+  }
 }
 
 #scrollablePersonContainer {
