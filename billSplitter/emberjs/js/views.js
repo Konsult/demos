@@ -261,6 +261,41 @@ App.TipSelect = Em.Select.extend({
   },
 });
 
+App.SharingChooserOverlay = Em.View.extend({
+  templateName: "sharing-chooser-overlay",
+  classNames: ["SharingChooserOverlay"],
+
+  sharedItem: null, // Given on initialization.
+
+  didInsertElement: function () {
+    var el = this.$();
+    el.css("bottom", $("body").height() - this.get("sharedItem").get("view").$().offset().top);
+
+    var container = el.find(".ScrollableButtonsContainer").children();
+    var numPeople = App.get("people").length;
+    var width = numPeople * 60;
+    if (width > container.width())
+      container.width(width);
+  },
+});
+
+App.PersonCheckButton = Em.View.extend({
+  person: null, // Given on initialization.
+  classNames: ["PersonCheckButton", "btn", "btn-inverse", "btn-large"],
+  
+  didInsertElement: function () {
+    this.$().append('<i class="icon-user icon-white"></i>' + this.get("person").get("id"));
+    this.$().css("width", 100 / App.get("people").length + "%");
+  },
+
+  touchEnd: function (e) {
+    this.$().toggleClass("Active");
+    // Prevent unfocusing the associated input field.
+    e.preventDefault();
+    e.stopPropagation();
+  },
+});
+
 App.PersonView = Em.View.extend({
   templateName: "person",
   classNames:["Person"],

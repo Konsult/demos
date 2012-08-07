@@ -70,6 +70,7 @@ App.Item = Em.Object.extend({
 
 App.SharedItem = App.Item.extend({
   view: null, // Will be set by DraggableItemView.
+  chooserView: null,
 
   portionedItems: null, // Array of App.PortionedSharedItem, will be initialized on creation.
 
@@ -82,10 +83,23 @@ App.SharedItem = App.Item.extend({
   }.property("portionedItems"),
 
   focusIn: function (e) {
+    this._super(e);
+
+    var chooserView = App.SharingChooserOverlay.create({
+      sharedItem: this,
+    });
+    this.set("chooserView", chooserView);
+    chooserView.appendTo($("body"));
+
     App.sharedItemFocusIn(this);
   },
 
   focusOut: function (e) {
+    this._super(e);
+
+    this.get("chooserView").removeFromParent();
+    this.set("chooserView", null);
+
     App.sharedItemFocusOut(this);
   },
 

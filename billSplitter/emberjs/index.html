@@ -49,6 +49,17 @@
       <div class="icon-plus"></div><div class="icon-user"></div>
     </div>
   </script>
+
+  <script data-template-name="sharing-chooser-overlay" type="text/x-handlebars">
+    <div class="Label">Who&rsquo;s sharing?</div>
+    <div class="ScrollableButtonsContainer">
+      <div class="btn-group">
+        {{#each App.people}}
+          {{view App.PersonCheckButton personBinding="this"}}
+        {{/each}}
+      </div>
+    </div>
+  </script>
 </head>
 <body>
   <div id="scrollablePersonContainer">
