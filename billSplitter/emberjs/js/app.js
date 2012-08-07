@@ -19,13 +19,12 @@ var App = Em.Application.create({
     var amount = 0;
     var people = this.get("people");
     for(var i = 0; i < people.length; i++) {
-      var view = people[i].get("view");
-      if (view)
-        amount += parseFloat(view.get("totalAmount"));
+      var person = people[i];
+        amount += person.get("totalWithoutTaxOrTip") + person.get("tax") + person.get("tip");
     }
 
     this.set("grandTotal", "$" + amount.toFixed(2));
-  }.observes("people.@each.totalWithoutTaxOrTip", "totalTaxAndTip.tip", "totalTaxOrTip.tax"),
+  }.observes("people.length", "people.@each.totalWithoutTaxOrTip", "totalTaxAndTip.tip", "totalTaxAndTip.taxView.value"),
 
   addPerson: function () {
     var person = App.Person.create({

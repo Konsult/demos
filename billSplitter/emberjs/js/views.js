@@ -11,7 +11,15 @@ App.CurrencyInput = Em.TextField.extend({
   maxLength: 0, // This can be overriden by subclasses. 0 = no max length.
 
   numericValue: function () {
-    return parseFloat(this.numberFromDisplayString(this.get("value")));
+    var val = this.numberFromDisplayString(this.get("value"));
+    if (!val.length)
+      return 0;
+    var number = parseFloat(val);
+    if (isNaN(number)) {
+      debug("yo this number isn't a number: " + val);
+      return 0;
+    }
+    return number;
   },
 
   displayStringForNumber: function (value) {
@@ -115,15 +123,12 @@ App.TotalTaxAndTip = Em.View.extend({
     return selection.value;
   }.property("tipView.selection"),
 
-  tax: function () {
-    var view = this.get("taxView");
-    if (!view)
+  taxForPersonSubtotal: function (personSubtotal) {
+    var taxView = this.get("taxView");
+    if (!taxView)
       return 0;
-    var tax = parseFloat(view.numberFromDisplayString(view.get("value")));
-    if (isNaN(tax))
-      return 0;
-    return tax;
-  }.property("taxView.value"),
+    return taxView.taxForPersonSubtotal(personSubtotal);
+  },
 
   total: function () {
     var view = this.get("totalView");
@@ -134,13 +139,6 @@ App.TotalTaxAndTip = Em.View.extend({
       return 0;
     return total;
   }.property("totalView.value"),
-
-  taxPercentage: function () {
-    var total = this.get("total");
-    if (!total)
-      return NaN;
-    return this.get("tax") / total;
-  }.property("tax, total"),
 
   createChildView: function (viewClass, attrs) {
     var view = this._super(viewClass, attrs);
@@ -159,6 +157,7 @@ App.TotalTaxAndTip = Em.View.extend({
 App.TaxField = App.CurrencyInput.extend({
   classNames: "TaxField",
   maxLength: 6,
+  name: "tax",
 
   modes: {
     "$": { prefix: "$", postfix: "", placeholder: "$0.00", focusedPlaceholder: "0.00" },
@@ -166,6 +165,25 @@ App.TaxField = App.CurrencyInput.extend({
     "Auto": { prefix: "", postfix: "", placeholder: "Auto", focusedPlaceholder:"Auto" },
   },
   currentMode: "$",
+
+  taxForPersonSubtotal: function (personSubtotal) {
+    switch (this.get("currentMode")) {
+      case "$":
+        var numberOfPeople = App.get("people").length;
+        if (!numberOfPeople)
+          return 0;
+        var totalTax = parseFloat(this.numericValue());
+        return totalTax / numberOfPeople;
+      case "%":
+        var taxPercentage = parseFloat(this.numericValue());
+        return personSubtotal * taxPercentage / 100;
+      case "Auto":
+        debug("Dude, auto isn't implemented yet");
+        return 0;
+      default:
+        return 0;
+    }
+  },
 
   keyPress: function (e) {
     if (this.get("currentMode") !== "Auto")
@@ -191,6 +209,7 @@ App.TaxField = App.CurrencyInput.extend({
     this.set("postfix", mode.postfix);
     this.set("placeholder", mode.placeholder);
     this.set("focusedPlaceholder", mode.focusedPlaceholder);
+    this.set("value", "");
 
     this.updateTooltip();
   }.observes("currentMode"),
@@ -257,6 +276,7 @@ App.PersonView = Em.View.extend({
     var tip = person.get("tip");
     var subtotal = person.get("totalWithoutTaxOrTip");
     var tax = person.get("tax");
+
     return (tip + subtotal + tax).toFixed(2);
   }.property("person.totalWithoutTaxOrTip", "person.tip", "person.tax"),
 

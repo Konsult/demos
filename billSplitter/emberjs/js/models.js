@@ -21,14 +21,8 @@ App.Person = Em.Object.extend({
   }.property("totalWithoutTaxOrTip", "App.totalTaxAndTip.tip"),
 
   tax: function () {
-    var tax = App.get("totalTaxAndTip").get("taxPercentage");
-    if (!isNaN(tax))
-      return tax * this.get("totalWithoutTaxOrTip");
-
-    // Don't know percentage, so just evenly split between people.
-    tax = App.get("totalTaxAndTip").get("tax");
-    return tax / App.people.length;
-  }.property("App.people", "totalWithoutTaxOrTip", "App.totalTaxAndTip.tax", "App.totalTaxAndTip.total"), 
+    return App.get("totalTaxAndTip").taxForPersonSubtotal(this.get("totalWithoutTaxOrTip"));
+  }.property("App.people.length", "totalWithoutTaxOrTip", "App.totalTaxAndTip.taxView.value"), 
 
   removeItem: function (item) {
     var items = this.get("items");
