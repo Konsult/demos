@@ -17,16 +17,16 @@ App.Person = Em.Object.extend({
   }.property("items.@each.value"),
 
   tip: function () {
-    return App.totalTaxAndTip.get("tip") * this.get("totalWithoutTaxOrTip");
-  }.property("totalWithoutTaxOrTip", "App.totalTaxAndTip"),
+    return App.get("totalTaxAndTip").get("tip") * this.get("totalWithoutTaxOrTip");
+  }.property("totalWithoutTaxOrTip", "App.totalTaxAndTip.tip"),
 
   tax: function () {
-    var tax = App.totalTaxAndTip.get("taxPercentage");
+    var tax = App.get("totalTaxAndTip").get("taxPercentage");
     if (!isNaN(tax))
       return tax * this.get("totalWithoutTaxOrTip");
 
     // Don't know percentage, so just evenly split between people.
-    tax = App.totalTaxAndTip.get("tax");
+    tax = App.get("totalTaxAndTip").get("tax");
     return tax / App.people.length;
   }.property("App.people", "totalWithoutTaxOrTip", "App.totalTaxAndTip.tax", "App.totalTaxAndTip.total"), 
 

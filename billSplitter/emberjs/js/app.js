@@ -9,10 +9,23 @@ var App = Em.Application.create({
   // Array of type App.Person
   people: [],
   personUnderMouse: null,
+  grandTotal: "$0.00",
 
   // Array of type App.DraggableItemView
   sharedItems: [],
   totalTaxAndTip: null,
+
+  updateGrandTotal: function () {
+    var amount = 0;
+    var people = this.get("people");
+    for(var i = 0; i < people.length; i++) {
+      var view = people[i].get("view");
+      if (view)
+        amount += parseFloat(view.get("totalAmount"));
+    }
+
+    this.set("grandTotal", "$" + amount.toFixed(2));
+  }.observes("people.@each.totalWithoutTaxOrTip", "totalTaxAndTip.tip", "totalTaxOrTip.tax"),
 
   addPerson: function () {
     var person = App.Person.create({
@@ -50,8 +63,9 @@ var App = Em.Application.create({
   },
 
   ready: function () {
-    App.totalTaxAndTip = App.TotalTaxAndTip.create();
-    App.totalTaxAndTip.appendTo($("body"));
+    var taxAndTip = App.TotalTaxAndTip.create();
+    App.set("totalTaxAndTip", taxAndTip);
+    taxAndTip.appendTo($("body"));
 
     var personContainer = $("#PersonContainer");
     App.addPersonButton = App.AddPersonButton.create({
