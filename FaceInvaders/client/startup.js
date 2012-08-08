@@ -9,15 +9,24 @@ var App = {
   enemyShots: [],
 
   el: null,
-  w: 800, h: 600,
+  w: 1440, h: 900,
 
   launch: function (pel) {
+
     // Set up DOM
     var el = App.el = $("<div>");
-    el.width(App.w);
-    el.height(App.h);
     el.toggleClass("App");
     pel.append(el);
+
+    // Fit the viewport
+    function resizeToViewport() {
+      App.w = $(window).width();
+      App.h = $(window).height();
+      el.width(App.w);
+      el.height(App.h);
+    }
+    $(window).resize(resizeToViewport);
+    resizeToViewport();
 
     // Set up inputs
     var doc = $(document);
@@ -306,7 +315,7 @@ Fleet.prototype.stepRight = function () {
   this.x = Math.min(this.x, App.w-this.w);
 };
 Fleet.prototype.stepDown = function () {
-  this.y += this.stepLength;
+  this.y += (3 * this.stepLength);
   this.y = Math.min(this.y, App.h);
 };
 Fleet.prototype.setSize = function (w,h) {
