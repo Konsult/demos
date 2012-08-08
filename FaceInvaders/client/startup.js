@@ -104,9 +104,18 @@ function Player (id) {
   this.el.width(this.w);
   this.el.height(this.h);
 
+  // Add face
+  this.el.append("<div class='Face'>");
+  // Add face image in here, 100%x100%.
+
+  // Add body
+  this.el.append("<div class='Body'>");
+
   // Add wheels
+  var wheelContainer = $("<div class='WheelContainer'>");
   for (var i = 0; i < 5; i++)
-    this.el.append($("<div class='wheel'>"));
+    wheelContainer.append($("<div class='wheel'>"));
+  this.el.append(wheelContainer);
 
   this.deadAt = null;
 

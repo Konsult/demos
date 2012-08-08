@@ -35,44 +35,63 @@ body {
 .Player {
   bottom: 0px;
 
-  background-image: url("/images/player.png");
-
   -webkit-transform-origin: bottom;
 
-  @firstWheelOffset: 10px;
-  @standardWheelWidth: 18px;
-  @fourthWheelWidth: 14px;
-  @fifthWheelWidth: 15px;
-  .wheel {
+  .Face {
     position: absolute;
+    top: 28px;
+    left: 23px;
+    width: 45px;
+    height: 45px;
+
+    z-index: 1;
+  }
+
+  .Body {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    z-index: 2;
+
+   background-image: url("/images/player.png");
+  }
+
+  .WheelContainer {
+    position: absolute;
+    left: 9px;
+    right: 0;
     bottom: 3px;
-    width: @standardWheelWidth;
     height: 15px;
 
-    -webkit-transform-origin: center;
-    -webkit-animation: 0.5s linear infinite;
-  }
-  .wheel:first-child {
-    left: @firstWheelOffset;
-    background-image: url("/images/wheel1.png");
-  }
-  .wheel:nth-child(2) {
-    left: @firstWheelOffset + @standardWheelWidth;
-    background-image: url("/images/wheel2.png");
-  }
-  .wheel:nth-child(3) {
-    left: @firstWheelOffset + @standardWheelWidth * 2;
-    background-image: url("/images/wheel3.png");
-  }
-  .wheel:nth-child(4) {
-    left: @firstWheelOffset + @standardWheelWidth * 3;
-    background-image: url("/images/wheel4.png");
-    width: @fourthWheelWidth;
-  }
-  .wheel:last-child {
-    left: @firstWheelOffset + @standardWheelWidth * 3 + @fourthWheelWidth;
-    background-image: url("/images/wheel5.png");
-    width: @fifthWheelWidth;
+    z-index: 3;
+
+    .wheel {
+      display: inline-block;
+      width: 18px;
+      height: 15px;
+
+      -webkit-transform-origin: center;
+      -webkit-animation: 0.5s linear infinite;
+    }
+    .wheel:first-child {
+      background-image: url("/images/wheel1.png");
+    }
+    .wheel:nth-child(2) {
+      background-image: url("/images/wheel2.png");
+    }
+    .wheel:nth-child(3) {
+      background-image: url("/images/wheel3.png");
+    }
+    .wheel:nth-child(4) {
+      background-image: url("/images/wheel4.png");
+      width: 14px;
+    }
+    .wheel:last-child {
+      background-image: url("/images/wheel5.png");
+      width: 15px;
+    }
   }
 }
 
