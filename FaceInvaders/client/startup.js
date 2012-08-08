@@ -586,32 +586,53 @@ Bullet.prototype.fireFrom = function (el, x, y) {
   App.bullets[this.num] = this;
 };
 Bullet.prototype.update = function (ms) {
+  if (this.state === "exploding")
+    return;
+
   var dist = this.speed * (ms / 1000);
   var flip = (this.type == "Enemy") ? 1 : -1;
   dist *= flip;
   this.y += dist;
 
   if (!App.collides(App.el, this.el)) {
-    App.bullets[this.num] = null;
-    this.el.remove();
+    this.remove();
     return;
   }
 
+  var thingToExplode = null;
   if (this.type == "Player" && App.collides(App.Fleet.el, this.el)) {
     for (i in App.enemies) {
       var e = App.enemies[i];
       if (e.state == "alive" && App.collides(e.el, this.el)) {
-        e.die();
-        this.state = "exploding";
-        return;
+        thingToExplode = e;
+        break;
       }
     }
-  } else if (this.type == "Enemy" && App.collides(App.Player.el, this.el)) {
-    App.Player.die();
+  } else if (this.type == "Enemy" && App.collides(App.Player.el, this.el))
+    thingToExplode = App.Player;
+
+  if (thingToExplode) {
+    thingToExplode.die();
     this.state = "exploding";
-    return;
+    this.el.addClass("Explosion");
+    var thingOffset = thingToExplode.el.offset();
+    this.el.css({
+      top: thingOffset.top + thingToExplode.el.height() / 2,
+      left: thingOffset.left + thingToExplode.el.width() / 2,
+    });
+
+    var that = this;
+    setTimeout(function () { that.remove(); console.log("yay")}, 500);
   }
 };
+Bullet.prototype.remove = function () {
+    App.bullets[this.num] = null;
+    this.el.remove();
+};
+
+var explosionWidth = 143;
+var explosionHeight = 150;
+
 Bullet.prototype.render = function () {
   switch (this.state) {
     case "flying":
@@ -619,7 +640,6 @@ Bullet.prototype.render = function () {
       break;
     case "exploding":
       var since = App.time - this.explodeTime;
-      // TODO: Lerp the explosion animation
       break;
   }
 };
