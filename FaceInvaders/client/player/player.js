@@ -8,6 +8,11 @@ function Player () {
   this.w = 100; this.h = 95;
   this.state = "alive";
   this.deadAt = null;
+  this.lives = 5;
+
+  // Shooting
+  this.shotInterval = 1000;
+  this.lastShot = App.time;
 
   // Movement State
   this.moveType = "linear"; // Move via smooth linear motion
@@ -86,16 +91,19 @@ Player.prototype.render = function () {
   }
 };
 Player.prototype.fire = function () {
-  this.el.addClass("Fire");
-  var that = this;
+  var since = App.time - this.lastShot;
+  if (since < this.shotInterval) return;
+  this.lastShot = App.time;
+
+  var el = this.el;
+  el.addClass("Fire");
   setTimeout(function () {
-    that.el.removeClass("Fire");
+    el.removeClass("Fire");
   }, 150);
 
   var b = new Bullet("Player");
   var x = this.w/2 - 10;
   b.fireFrom(this.el, x, 0);
-  console.log("Player fires!");
 };
 Player.prototype.stepLeft = function () {
   if (this.tx > this.x) {
@@ -123,7 +131,12 @@ Player.prototype.stepRight = function () {
   this.el.removeClass("Left");
 };
 Player.prototype.die = function () {
-  this.state = "dead";
-  this.deadAt = App.time;
-  this.el.toggleClass("dead");
+  if (--this.lives == 0) {
+    this.state = "dead";
+    this.deadAt = App.time;
+    this.el.addClass("dead");
+  } else {
+    // TODO: Stop moving, show explosion or flash, then fade back
+    // in and add immunity for a few seconds to dodge bullets
+  }
 };

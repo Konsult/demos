@@ -3,6 +3,97 @@ var enemyHeight = 151 * 0.75;
 var enemyHSpacing = enemyWidth;
 var enemyVSpacing = 10;
 
+function Enemy (id) {
+  // Self State
+  this.id = id;
+  this.fleet = null;
+  this.w = enemyWidth;
+  this.h = enemyHeight;
+  this.state = "alive";
+  this.deadAt = null;
+
+  // Movement State
+  this.moveType = "linear"; // Move via smooth linear motion
+  this.speed = 200;         // 200px / second
+
+  // DOM State
+  this.el = $("<div>");
+  this.el.toggleClass("Unit");
+  this.el.toggleClass("Enemy");
+  this.setSize(this.w, this.h);
+
+  // Add face
+  this.face = {};
+  this.face.el = $("<div class='Face'>");
+  this.el.append(this.face.el);
+
+  // Load FB Data
+  var that = this;
+  FB.api(
+    {
+      method: 'fql.query',
+      query: 'SELECT name, pic_square, uid FROM user WHERE uid='+this.id
+    },
+    function(response) {
+      var user = response[0];
+      that.pic = user.pic_square;
+      that.name = user.name;
+      that.face.el.css("background-image", "url("+that.pic+")");
+    }
+  );
+
+  // Add body
+  var body = $("<div class='Body'>");
+  this.el.append(body);
+};
+Enemy.prototype.update = function(ms) {
+  // Nothing to really do by default...
+};
+Enemy.prototype.render = function() {
+  switch (this.state) {
+    case "alive":
+      break;
+    case "dead":
+      var since = App.time - this.deadAt;
+      if (since > 2000)
+        this.el.css("display", "none");
+      break;
+    case "loading":
+      // Show spiny or glowing character without a face?
+      break;
+  }
+};
+Enemy.prototype.die = function () {
+  this.state = "dead";
+  this.deadAt = App.time;
+  this.el.addClass("dead");
+  this.fleet.numAlive--;
+};
+Enemy.prototype.fire = function () {
+  this.el.addClass("Fire");
+  var that = this;
+  setTimeout(function () {
+    that.el.removeClass("Fire");
+  }, 150);
+
+  var b = new Bullet("Enemy");
+  var x = this.w/2;
+  b.fireFrom(this.el, x, this.h);
+  console.log("Enemy fired!");
+};
+Enemy.prototype.setSize = function (w,h) {
+  this.w = w;
+  this.h = h;
+  this.el.width(w);
+  this.el.height(h);
+};
+Enemy.prototype.moveTo = function(x,y) {
+  this.x = x;
+  this.y = y;
+  this.el.css("top", this.y+"px");
+  this.el.css("left", this.x+"px");
+};
+
 function Fleet (users, maxSize) {
   // FB Data
   this.ids = [];
@@ -159,96 +250,4 @@ Fleet.prototype.die = function () {
   this.state = "dead";
   this.deadAt = App.time;
   this.el.toggleClass("dead"); 
-}
-
-function Enemy (id) {
-  // Self State
-  this.id = id;
-  this.fleet = null;
-  this.w = enemyWidth;
-  this.h = enemyHeight;
-  this.state = "alive";
-  this.deadAt = null;
-
-  // Movement State
-  this.moveType = "linear"; // Move via smooth linear motion
-  this.speed = 200;         // 200px / second
-
-  // DOM State
-  this.el = $("<div>");
-  this.el.toggleClass("Unit");
-  this.el.toggleClass("Enemy");
-  this.setSize(this.w, this.h);
-
-  // Add face
-  this.face = {};
-  this.face.el = $("<div class='Face'>");
-  this.el.append(this.face.el);
-
-  // Load FB Data
-  var that = this;
-  FB.api(
-    {
-      method: 'fql.query',
-      query: 'SELECT name, pic_square, uid FROM user WHERE uid='+this.id
-    },
-    function(response) {
-      var user = response[0];
-      that.pic = user.pic_square;
-      that.name = user.name;
-      that.face.el.css("background-image", "url("+that.pic+")");
-    }
-  );
-
-  // Add body
-  var body = $("<div class='Body'>");
-  this.el.append(body);
-};
-Enemy.prototype.update = function(ms) {
-  // Nothing to really do by default...
-};
-Enemy.prototype.render = function() {
-  switch (this.state) {
-    case "alive":
-      break;
-    case "dead":
-      var since = App.time - this.deadAt;
-      if (since > 2000)
-        this.el.css("display", "none");
-      break;
-    case "loading":
-      // Show spiny or glowing character without a face?
-      break;
-  }
-};
-Enemy.prototype.die = function () {
-  this.state = "dead";
-  this.deadAt = App.time;
-  this.el.toggleClass("dead");
-
-  this.fleet.numAlive--;
-};
-Enemy.prototype.fire = function () {
-  this.el.addClass("Fire");
-  var that = this;
-  setTimeout(function () {
-    that.el.removeClass("Fire");
-  }, 150);
-
-  var b = new Bullet("Enemy");
-  var x = this.w/2;
-  b.fireFrom(this.el, x, this.h);
-  console.log("Enemy fired!");
-};
-Enemy.prototype.setSize = function (w,h) {
-  this.w = w;
-  this.h = h;
-  this.el.width(w);
-  this.el.height(h);
-};
-Enemy.prototype.moveTo = function(x,y) {
-  this.x = x;
-  this.y = y;
-  this.el.css("top", this.y+"px");
-  this.el.css("left", this.x+"px");
 };
