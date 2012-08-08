@@ -108,7 +108,6 @@ var App = {
     App.gameInProgress = true;
   },
   loadMap: function (mapID) {
-    App.el.css("background-color", "green");
   },
   createFriendFleet: function () {
     var base = "https://graph.facebook.com";
