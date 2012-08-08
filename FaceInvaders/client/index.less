@@ -28,6 +28,21 @@ body {
   opacity: 1;
 }
 
+.Face {
+  background-size: contain;
+  -webkit-filter: contrast(1.1);
+}
+.Face:after {
+  content: " ";
+  width: 100%;
+  height: 100%;
+  position: absolute;
+
+  background-image: -webkit-radial-gradient(center 30%, 100% 100%, transparent 25%, black); 
+
+  border-radius: inherit;
+}
+
 .Player {
   bottom: 0px;
 
@@ -168,6 +183,9 @@ body {
 }
 .Fleet.Flipped .Enemy.Flipped {
   -webkit-transform: none;
+}
+.Fleet.Flipped .Face {
+  -webkit-transform: rotateY(180deg);
 }
 
 @-webkit-keyframes flippedFire {
