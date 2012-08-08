@@ -1,3 +1,9 @@
+Meteor.startup(function () {
+  var el = $(document.body);
+  App.launch(el);
+  App.loadFacebook();
+});
+
 var App = {
   raf: null,
   time: (new Date()).getTime(),
@@ -10,8 +16,50 @@ var App = {
   el: null,
   w: 1440, h: 900,
 
-  launch: function (pel) {
+  loggedIn: false,
+  fbLoaded: false,
+  gameInProgress: false,
+  loadFacebook: function () {
+    window.fbAsyncInit = function() {
+      FB.init({
+        appId      : '485761404769776', // App ID
+        // channelUrl : '//WWW.YOUR_DOMAIN.COM/channel.html', // Channel File
+        status     : true, // check login status
+        cookie     : true, // enable cookies to allow the server to access the session
+        xfbml      : true  // parse XFBML
+      });
+      App.fbLoaded = true;
 
+      function onStatus(response) {
+        if (response.status === 'connected') {
+          App.loggedIn = true;
+          App.Player.load();
+        } else App.loggedIn = false;
+      };
+
+      FB.getLoginStatus(function(response) {
+        onStatus(response); // once on page load
+        FB.Event.subscribe('auth.statusChange', onStatus); // every status change
+      });
+    };
+
+    // Load the SDK Asynchronously
+    (function(d) {
+      console.log("Async Loading Facebook API SDK");
+      var js, id = 'facebook-jssdk', ref = d.getElementsByTagName('script')[0];
+      if (d.getElementById(id)) {return;}
+      js = d.createElement('script'); js.id = id; js.async = true;
+      js.src = "//connect.facebook.net/en_US/all.js";
+      ref.parentNode.insertBefore(js, ref);
+    }(document));
+  },
+  login: function () {
+    FB.login();
+  },
+  logout: function () {
+    FB.logout();
+  },
+  launch: function (pel) {
     // Set up DOM
     var el = App.el = $("<div>");
     el.toggleClass("App");
@@ -39,26 +87,40 @@ var App = {
       if (e.which == 39 && App.Player)
         App.Player.stepRight();
     });
-    // el.mousemove(function (e) {
-    //   e.target.offsetX
-    // });
+    doc.click(function () {
+      if (App.fbLoaded && !App.loggedIn) {
+        App.login();
+      } else if (App.loggedIn && !App.gameInProgress) {
+        App.loadGame(0);
+      }
+    });
 
+    App.Player = new Player();
     App.main();
-  },
-  loadPlayer: function (playerID) {
-    var p = App.Player = new Player(playerID);
-    App.el.append(p.el);
   },
   loadGame: function (gameID) {
     switch (gameID) {
       default:
-        // Set up world map
-
-        // Create enemies/fleets
-        var f = App.Fleet = new Fleet([4, 5, 6]);
-        App.el.append(f.el);
+        App.loadMap(0);
+        App.createFriendFleet();
         break;
     }
+    App.gameInProgress = true;
+  },
+  loadMap: function (mapID) {
+    App.el.css("background-color", "green");
+  },
+  createFriendFleet: function () {
+    var base = "https://graph.facebook.com";
+    var path = "/me/friends";
+    var query = "?access_token=" + FB.getAccessToken();
+    var url = base + path + query;
+
+    Meteor.http.get(url, function (e, r) {
+      if (e) { console.log("ERROR: Get FB Friends Failed."); return;}
+      var friends = JSON.parse(r.content).data;
+      App.Fleet = new Fleet(friends, 10);
+    });
   },
   main: function () {
     App.raf = window.requestAnimationFrame(App.main);
@@ -108,9 +170,12 @@ var App = {
   }
 };
 
-function Player (id) {
+function Player () {
+  // User Data
+  this.id = this.name = null;
+  this.friends = null;
+
   // Self State
-  this.id = id;
   this.x = this.tx = 0;
   this.w = 100; this.h = 95;
   this.state = "alive";
@@ -128,9 +193,10 @@ function Player (id) {
   this.el.width(this.w);
   this.el.height(this.h);
 
-  // Add face
-  this.el.append("<div class='Face'>");
-  // Add face image in here, 100%x100%.
+  // Add Face
+  this.face = {};
+  this.face.el = $("<div class='Face'>");
+  this.el.append(this.face.el);
 
   // Add body
   this.el.append("<div class='Body'>");
@@ -141,12 +207,28 @@ function Player (id) {
     wheelContainer.append($("<div class='wheel'>"));
   this.el.append(wheelContainer);
 
-  this.load();
+  App.el.append(this.el);
 };
 Player.prototype.load = function () {
-  // this.state = "loading";
-  // Load friend list, photos, and other info from FB
-  // Onload, set this.state = "alive";
+  this.id = FB.getUserID();
+  this.state = "loading";
+
+  // Load User Info from Facebook
+  var that = this;
+  FB.api(
+    {
+      method: 'fql.query',
+      query: 'SELECT name, pic_square FROM user WHERE uid='+this.id
+    },
+    function(response) {
+      var user = response[0];
+      that.pic = user.pic_square;
+      that.name = user.name;
+      that.state = "alive";
+
+      that.face.el.css("background-image", "url("+that.pic+")");
+    }
+  );
 };
 Player.prototype.update = function (ms) {
   if (this.x == this.tx)  {
@@ -221,9 +303,13 @@ Player.prototype.die = function () {
 var enemyWidth = 100 * 0.75;
 var enemyHeight = 151 * 0.75;
 
-function Fleet (ids) {
+function Fleet (users, maxSize) {
+  // FB Data
+  this.ids = [];
+  this.users = users;
+  this.maxSize = maxSize;
+
   // Self State
-  this.ids = ids;
   this.x = enemyWidth;
   this.y = enemyHeight;
   this.w = enemyWidth * 6;
@@ -249,23 +335,37 @@ function Fleet (ids) {
   this.setSize(this.w, this.h);
 
   // Construct Fleet
-  this.numAlive = this.ids.length;
   var guys = this.guys = {};
   var x = 10;
   var y = 10;
 
-	for (i in ids) {
-		var id = ids[i];
+	for (i in users) {
+    // Create enemies until we hit our max size
+    if (i >= maxSize) break;
+
+    var user = users[i];
+		var id = user.id;
+    this.ids.push(id);
+
 		var guy = guys[id] = App.enemies[id] = new Enemy(id);
     guy.fleet = this;
     el.append(guy.el);
     guy.moveTo(x, y);
-    x += 100;
+
+    if (x + guy.w > this.w - 10) {
+      y += 100;
+      x = 10;
+    } else {
+      x += 100;
+    }
 
     // Reverse some of them.
     if (Math.random() >= 0.5)
       guy.el.toggleClass("Flipped");
 	}
+
+  this.numAlive = this.ids.length;
+  App.el.append(this.el);
 };
 Fleet.prototype.update = function(ms) {
   if (this.state == "dead") return;
@@ -381,9 +481,24 @@ function Enemy (id) {
   this.setSize(this.w, this.h);
 
   // Add face
-  var face = $("<div class='Face'>");
-  this.el.append(face);
-  // Gimme ma face here!
+  this.face = {};
+  this.face.el = $("<div class='Face'>");
+  this.el.append(this.face.el);
+
+  // Load FB Data
+  var that = this;
+  FB.api(
+    {
+      method: 'fql.query',
+      query: 'SELECT name, pic_square, uid FROM user WHERE uid='+this.id
+    },
+    function(response) {
+      var user = response[0];
+      that.pic = user.pic_square;
+      that.name = user.name;
+      that.face.el.css("background-image", "url("+that.pic+")");
+    }
+  );
 
   // Add body
   var body = $("<div class='Body'>");
@@ -507,11 +622,3 @@ Bullet.prototype.render = function () {
       break;
   }
 };
-
-
-Meteor.startup(function () {
-  var el = $(document.body);
-  App.launch(el);
-  App.loadPlayer(0);
-  App.loadGame(0);
-});
