@@ -53,7 +53,6 @@ var App = {
     switch (gameID) {
       default:
         // Set up world map
-        App.el.css("background-color", "green");
 
         // Create enemies/fleets
         var f = App.Fleet = new Fleet([4, 5, 6]);
