@@ -184,7 +184,7 @@ Player.prototype.fire = function () {
   }, 150);
 
   var b = new Bullet("Player");
-  var x = this.w/2;
+  var x = this.w/2 - 10;
   b.fireFrom(this.el, x, 0);
   console.log("Player fires!");
 };
