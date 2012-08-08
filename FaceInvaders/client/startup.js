@@ -154,7 +154,7 @@ Player.prototype.fire = function () {
   setTimeout(function () {
     // Emit a player bullet from our current location
     that.el.removeClass("Fire");
-  }, 250);
+  }, 150);
 };
 Player.prototype.stepLeft = function () {
   if (this.tx > this.x) {
