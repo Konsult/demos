@@ -5,8 +5,7 @@ var App = {
   Player: null,
   Fleet: null,
   enemies: {},
-  playerShots: [],
-  enemyShots: [],
+  bullets: {},
 
   el: null,
   w: 1440, h: 900,
@@ -79,9 +78,10 @@ var App = {
     function updateAll (L) {
       for (i in L) {
         var o = L[i];
-        o.update(ms);
+        o && o.update(ms);
       }
     };
+    updateAll(App.bullets);
   },
   render: function () {
     App.Player && App.Player.render();
@@ -90,9 +90,22 @@ var App = {
     function renderAll (L) {
       for (i in L) {
         var o = L[i];
-        o.render();
+        o && o.render();
       }
     };
+    renderAll(App.bullets);
+  },
+  collides: function (a, b) {
+    // Currently assumes only DOM nodes' rects for collisions
+    function left (x) { return x.offset().left };
+    function right (x) { return left(x) + x.width(); };
+    function top (x) { return x.offset().top; };
+    function bottom (x) { return top(x) + x.height(); };
+
+    return !(left(b) > right(a)
+          || right(b) > left(a)
+          || top(b) > bottom(a)
+          || bottom(b) > top(a));
   }
 };
 
@@ -164,14 +177,16 @@ Player.prototype.render = function () {
   }
 };
 Player.prototype.fire = function () {
-  console.log("Player fires!");
-
   this.el.addClass("Fire");
   var that = this;
   setTimeout(function () {
-    // Emit a player bullet from our current location
     that.el.removeClass("Fire");
   }, 150);
+
+  var b = new Bullet("Player");
+  var x = this.w/2;
+  b.fireFrom(this.el, x, 0);
+  console.log("Player fires!");
 };
 Player.prototype.stepLeft = function () {
   if (this.tx > this.x) {
@@ -222,7 +237,11 @@ function Fleet (ids) {
   this.stepLength = 10;   // 10px wide steps
   this.stepInterval = 500;
   this.stepDirection = "right";
-  this.lastStep = (new Date()).getTime();
+  this.lastStep = App.time;
+
+  // AI
+  this.shotInterval = 1000;
+  this.lastShot = App.time;
 
   // DOM State
   var el = this.el = $("<div>");
@@ -258,8 +277,30 @@ Fleet.prototype.update = function(ms) {
     return;
   }
 
+  // Fire from a random guy at regular interval
+  var since = App.time - this.lastShot;
+  if (since > this.shotInterval) {
+    var timeToFire = Math.random() * 250;
+    this.lastShot = App.time;
+
+    var that = this;
+    setTimeout(function () {
+      var num = that.numAlive * Math.random();
+      num = Math.round(num-0.5);
+
+      for (var i = 0; i < that.ids.length; i++) {
+        var id = that.ids[i];
+        if (!num) {
+          that.guys[id].fire();
+          return;
+        }
+        if (that.guys[id].state == "alive") num--;
+      }
+    }, timeToFire);
+  }
+
   // Compute time since last step
-  var since = App.time - this.lastStep;
+  since = App.time - this.lastStep;
   if (since < this.stepInterval) return;
   this.lastStep = App.time;
 
@@ -279,26 +320,7 @@ Fleet.prototype.update = function(ms) {
     }
     this.stepLeft();
   }
-
-  // Reverse everybody on every step so it looks like they're moving.
   this.el.toggleClass("Flipped");
-
-  // On every step, fire a random guy
-  var that = this;
-  var timeToFire = Math.random() * 500;
-  setTimeout(function () {
-
-    var num = that.numAlive * Math.random();
-    num = Math.round(num-0.5);
-    for (var i = 0; i < that.guys.length; i++) {
-      if (!num) {
-        that.guys[i].fire();
-        break;
-      }
-      if (that.guys[i].state == "alive") num--;
-    }
-
-  }, timeToFire);
 };
 Fleet.prototype.render = function() {
   switch (this.state) {
@@ -397,8 +419,12 @@ Enemy.prototype.fire = function () {
   var that = this;
   setTimeout(function () {
     that.el.removeClass("Fire");
-    console.log("Enemy fired!");
   }, 150);
+
+  var b = new Bullet("Enemy");
+  var x = this.w/2;
+  b.fireFrom(this.el, x, this.h);
+  console.log("Enemy fired!");
 };
 Enemy.prototype.setSize = function (w,h) {
   this.w = w;
@@ -412,6 +438,66 @@ Enemy.prototype.moveTo = function(x,y) {
   this.el.css("top", this.y+"px");
   this.el.css("left", this.x+"px");
 };
+
+function Bullet (type) {
+  // Self State
+  this.type = type;
+  // this.state = "unfired";
+  this.deadAt = null;
+
+  // Movement State
+  this.moveType = "linear"; // Move via smooth linear motion
+  this.speed = 500; // 200px / second
+
+  // DOM State
+  this.el = $("<div>");
+  this.el.toggleClass("Bullet");
+  this.el.toggleClass(type+"Bullet");
+};
+Bullet.prototype.fireFrom = function (el, x, y) {
+  var off = el.offset();
+  var x = off.left + x - (this.el.width() / 2);
+  var y = off.top + y - (this.el.height() / 2);
+
+  this.el.css("top", y+"px");
+  this.el.css("left", x+"px");
+  App.el.append(this.el);
+
+  this.x = this.px = x;
+  this.y = this.py = y;
+  this.state = "flying";
+
+  this.num = Math.random();
+  App.bullets[this.num] = this;
+};
+Bullet.prototype.update = function (ms) {
+  var dist = this.speed * (ms / 1000);
+  var flip = (this.type == "Enemy") ? 1 : -1;
+  dist *= flip;
+  this.y += dist;
+
+  if ((this.y + this.el.height()) < -50) {
+    App.bullets[this.num] = null;
+    this.el.remove();
+    return;
+  }
+
+  if (App.collides(App.Fleet.el, this.el)) {
+    this.state = "exploding";
+  }
+};
+Bullet.prototype.render = function () {
+  switch (this.state) {
+    case "flying":
+      this.el.css("top", this.y+"px");
+      break;
+    case "exploding":
+      var since = App.time - this.explodeTime;
+      // TODO: Lerp the explosion animation
+      break;
+  }
+};
+
 
 Meteor.startup(function () {
   var el = $(document.body);

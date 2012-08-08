@@ -21,9 +21,6 @@ body {
   position: absolute;
   overflow: hidden;
 
-  width: 64px;
-  height: 64px;
-
   -webkit-transition-property: opacity;
   -webkit-transition-duration: 1.0s;
   -webkit-transition-timing-funciton: linear;
@@ -203,7 +200,19 @@ body {
 }
 
 .Bullet {
-
+  position: absolute;
+  overflow: hidden;
+  z-index: 100;
+}
+.PlayerBullet {
+  background-image: url("/images/player_bullet.png");
+  width: 15px;
+  height: 45px;
+}
+.EnemyBullet {
+  background-image: url("/images/invader_bullet.png");
+  width: 15px;
+  height: 35px;
 }
 
 .dead {
