@@ -301,6 +301,8 @@ Player.prototype.die = function () {
 
 var enemyWidth = 100 * 0.75;
 var enemyHeight = 151 * 0.75;
+var enemyHSpacing = enemyWidth;
+var enemyVSpacing = 10;
 
 function Fleet (users, maxSize) {
   // FB Data
@@ -311,8 +313,8 @@ function Fleet (users, maxSize) {
   // Self State
   this.x = enemyWidth;
   this.y = enemyHeight;
-  this.w = enemyWidth * 6;
-  this.h = enemyHeight * 6;
+  this.w = (enemyWidth + enemyHSpacing) * 6 - enemyHSpacing;
+  this.h = (enemyHeight + enemyVSpacing) * 6 - enemyVSpacing;
   this.state = "alive";
   this.deadAt = null;
 
@@ -335,8 +337,8 @@ function Fleet (users, maxSize) {
 
   // Construct Fleet
   var guys = this.guys = {};
-  var x = 10;
-  var y = 10;
+  var x = 0;
+  var y = 0;
 
 	for (i in users) {
     // Create enemies until we hit our max size
@@ -352,10 +354,10 @@ function Fleet (users, maxSize) {
     guy.moveTo(x, y);
 
     if (x + guy.w > this.w - 10) {
-      y += 100;
-      x = 10;
+      y += enemyHeight + enemyVSpacing;
+      x = 0;
     } else {
-      x += 100;
+      x += enemyWidth + enemyHSpacing;
     }
 
     // Reverse some of them.
