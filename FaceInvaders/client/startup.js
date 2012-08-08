@@ -204,13 +204,16 @@ Player.prototype.die = function () {
   this.el.toggleClass("dead");
 };
 
-
+var enemyWidth = 100 * 0.75;
+var enemyHeight = 151 * 0.75;
 
 function Fleet (ids) {
   // Self State
   this.ids = ids;
-  this.x = this.y = 64;
-  this.w = this.h = 64 * 6;
+  this.x = enemyWidth;
+  this.y = enemyHeight;
+  this.w = enemyWidth * 6;
+  this.h = enemyHeight * 6;
   this.state = "alive";
   this.deadAt = null;
 
@@ -240,6 +243,10 @@ function Fleet (ids) {
     el.append(guy.el);
     guy.moveTo(x, y);
     x += 100;
+
+    // Reverse some of them.
+    if (Math.random() >= 0.5)
+      guy.el.toggleClass("Flipped");
 	}
 };
 Fleet.prototype.update = function(ms) {
@@ -272,6 +279,9 @@ Fleet.prototype.update = function(ms) {
     }
     this.stepLeft();
   }
+
+  // Reverse everybody on every step so it looks like they're moving.
+  this.el.toggleClass("Flipped");
 
   // On every step, fire a random guy
   var that = this;
@@ -334,7 +344,8 @@ function Enemy (id) {
   // Self State
   this.id = id;
   this.fleet = null;
-  this.w = this.h = 64;
+  this.w = enemyWidth;
+  this.h = enemyHeight;
   this.state = "alive";
   this.deadAt = null;
 
@@ -347,6 +358,15 @@ function Enemy (id) {
   this.el.toggleClass("Unit");
   this.el.toggleClass("Enemy");
   this.setSize(this.w, this.h);
+
+  // Add face
+  var face = $("<div class='Face'>");
+  this.el.append(face);
+  // Gimme ma face here!
+
+  // Add body
+  var body = $("<div class='Body'>");
+  this.el.append(body);
 };
 Enemy.prototype.update = function(ms) {
   // Nothing to really do by default...
@@ -373,7 +393,12 @@ Enemy.prototype.die = function () {
   this.fleet.numAlive--;
 };
 Enemy.prototype.fire = function () {
-  console.log("Enemy fired!");
+  this.el.addClass("Fire");
+  var that = this;
+  setTimeout(function () {
+    that.el.removeClass("Fire");
+    console.log("Enemy fired!");
+  }, 150);
 };
 Enemy.prototype.setSize = function (w,h) {
   this.w = w;
