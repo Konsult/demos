@@ -1,0 +1,142 @@
+* {
+	padding: 0px;
+	margin: 0px;
+}
+
+body {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+}
+
+.App {
+  position: absolute;
+  overflow: hidden;
+
+  border: 1px solid black;
+
+  background-color: black;
+}
+
+.Unit {
+  position: absolute;
+  overflow: hidden;
+
+  width: 64px;
+  height: 64px;
+
+  -webkit-transition-property: opacity;
+  -webkit-transition-duration: 1.0s;
+  -webkit-transition-timing-funciton: linear;
+
+  opacity: 1;
+}
+
+.Player {
+  bottom: 0px;
+
+  background-image: url("/images/player.png");
+
+  -webkit-transform-origin: bottom;
+
+  @firstWheelOffset: 10px;
+  @standardWheelWidth: 18px;
+  @fourthWheelWidth: 14px;
+  @fifthWheelWidth: 15px;
+  .wheel {
+    position: absolute;
+    bottom: 3px;
+    width: @standardWheelWidth;
+    height: 15px;
+
+    -webkit-transform-origin: center;
+    -webkit-animation: 0.5s linear infinite;
+  }
+  .wheel:first-child {
+    left: @firstWheelOffset;
+    background-image: url("/images/wheel1.png");
+  }
+  .wheel:nth-child(2) {
+    left: @firstWheelOffset + @standardWheelWidth;
+    background-image: url("/images/wheel2.png");
+  }
+  .wheel:nth-child(3) {
+    left: @firstWheelOffset + @standardWheelWidth * 2;
+    background-image: url("/images/wheel3.png");
+  }
+  .wheel:nth-child(4) {
+    left: @firstWheelOffset + @standardWheelWidth * 3;
+    background-image: url("/images/wheel4.png");
+    width: @fourthWheelWidth;
+  }
+  .wheel:last-child {
+    left: @firstWheelOffset + @standardWheelWidth * 3 + @fourthWheelWidth;
+    background-image: url("/images/wheel5.png");
+    width: @fifthWheelWidth;
+  }
+}
+
+@-webkit-keyframes rotateCCW {
+  0% {
+    -webkit-transform: rotate(0);
+  }
+  50% {
+    -webkit-transform: rotate(-180deg);
+  }
+  100% {
+    -webkit-transform: rotate(-360deg);
+  }
+}
+@-webkit-keyframes rotateCW {
+  0% {
+    -webkit-transform: rotate(0);
+  }
+  50% {
+    -webkit-transform: rotate(180deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+  }
+}
+.Player.Left .wheel {
+  -webkit-animation-name: rotateCCW;
+}
+.Player.Right .wheel {
+  -webkit-animation-name: rotateCW;
+}
+
+@-webkit-keyframes fire {
+  0% {
+    -webkit-transform: none;
+  }
+  50% {
+    -webkit-transform: scale(1.1, 0.9);
+  }
+  100% {
+    -webkit-transform: none;
+  }
+}
+.Player.Fire {
+  -webkit-animation: fire 0.25s ease-in;
+}
+
+.Enemy {
+  -webkit-transition-property: top, left, height, width, opacity;
+  -webkit-transition-duration: 1.0s;
+  -webkit-transition-timing-funciton: linear;
+}
+
+.Group {
+  position: absolute;
+}
+
+.Fleet {
+}
+
+.Bullet {
+
+}
+
+.dead {
+  opacity: 0;
+}

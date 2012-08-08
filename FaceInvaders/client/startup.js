@@ -89,12 +89,13 @@ function Player (id) {
   // Self State
   this.id = id;
   this.x = this.tx = this.px = 0;
-  this.w = this.h = 64;
+  this.w = 100;
+  this.h = 95;
 
   // Movement State
   this.moveType = "linear"; // Move via smooth linear motion
   this.speed = 200;         // 200px / second
-  this.stepLength = 64;    // 100px wide steps
+  this.stepLength = 100;    // 100px wide steps
 
   // DOM State
   this.el = $("<div>");
@@ -102,6 +103,10 @@ function Player (id) {
   this.el.toggleClass("Player");
   this.el.width(this.w);
   this.el.height(this.h);
+
+  // Add wheels
+  for (var i = 0; i < 5; i++)
+    this.el.append($("<div class='wheel'>"));
 
   this.deadAt = null;
 
@@ -115,7 +120,10 @@ Player.prototype.load = function () {
 };
 Player.prototype.update = function (ms) {
   this.px = this.x;
-  if (this.x == this.tx) return;
+  if (this.x == this.tx)  {
+    this.el.removeClass("Left Right");
+    return;
+  }
 
   var need = this.tx - this.x;
   var disp = this.speed * (ms / 1000);
@@ -140,7 +148,13 @@ Player.prototype.render = function () {
 };
 Player.prototype.fire = function () {
   console.log("Player fires!");
-  // Emit a player bullet from our current location
+
+  this.el.addClass("Fire");
+  var that = this;
+  setTimeout(function () {
+    // Emit a player bullet from our current location
+    that.el.removeClass("Fire");
+  }, 250);
 };
 Player.prototype.stepLeft = function () {
   if (this.tx > this.x) {
@@ -150,6 +164,9 @@ Player.prototype.stepLeft = function () {
 
   var tx = this.tx - this.stepLength;
   this.tx = Math.max(tx, 0);
+
+  this.el.addClass("Left");
+  this.el.removeClass("Right");
 };
 Player.prototype.stepRight = function () {
   if (this.tx < this.x) {
@@ -160,6 +177,9 @@ Player.prototype.stepRight = function () {
   var tx = this.tx + this.stepLength;
   var max = App.w - this.w;
   this.tx = Math.min(tx, max);
+
+  this.el.addClass("Right");
+  this.el.removeClass("Left");
 };
 Player.prototype.die = function () {
   this.state = "dead";
