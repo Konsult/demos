@@ -218,3 +218,31 @@ body {
 .dead {
   opacity: 0;
 }
+
+@-webkit-keyframes explosion {
+  0% {
+    background-position: 0 top;
+  }
+  25% {
+    background-position: 0 top;
+  }
+  50% {
+    background-position: -143px top;
+  }
+  75% {
+    background-position: -286px top;
+  }
+  100% {
+    background-position: -429px top;
+  }
+}
+
+.Explosion {
+  background-image: url('/images/explosion.png');
+  -webkit-animation: explosion 0.5s step-start infinite;
+
+  position: absolute;
+  z-index: 2000;
+  width: 143px;
+  height: 150px;
+}
