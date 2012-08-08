@@ -102,10 +102,10 @@ var App = {
     function top (x) { return x.offset().top; };
     function bottom (x) { return top(x) + x.height(); };
 
-    return !(left(b) > right(a)
-          || right(b) > left(a)
-          || top(b) > bottom(a)
-          || bottom(b) > top(a));
+    return !(left(a) > right(b)
+          || right(a) < left(b)
+          || top(a) > bottom(b)
+          || bottom(a) < top(b));
   }
 };
 
@@ -483,7 +483,14 @@ Bullet.prototype.update = function (ms) {
   }
 
   if (App.collides(App.Fleet.el, this.el)) {
-    this.state = "exploding";
+    for (i in App.enemies) {
+      var e = App.enemies[i];
+      if (e.state == "alive" && App.collides(e.el, this.el)) {
+        e.die();
+        this.state = "exploding";
+        return;
+      }
+    }
   }
 };
 Bullet.prototype.render = function () {
