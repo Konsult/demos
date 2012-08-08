@@ -476,13 +476,13 @@ Bullet.prototype.update = function (ms) {
   dist *= flip;
   this.y += dist;
 
-  if ((this.y + this.el.height()) < -50) {
+  if (!App.collides(App.el, this.el)) {
     App.bullets[this.num] = null;
     this.el.remove();
     return;
   }
 
-  if (App.collides(App.Fleet.el, this.el)) {
+  if (this.type == "Player" && App.collides(App.Fleet.el, this.el)) {
     for (i in App.enemies) {
       var e = App.enemies[i];
       if (e.state == "alive" && App.collides(e.el, this.el)) {
@@ -491,6 +491,10 @@ Bullet.prototype.update = function (ms) {
         return;
       }
     }
+  } else if (this.type == "Enemy" && App.collides(App.Player.el, this.el)) {
+    App.Player.die();
+    this.state = "exploding";
+    return;
   }
 };
 Bullet.prototype.render = function () {
