@@ -52,6 +52,8 @@ Bullet.prototype.update = function (ms) {
           return (e.state == "alive" && App.collides(e.el, el));
         });
       }
+      if (App.balloon && App.collides(App.balloon.el, el))
+        hit = App.balloon;
       break;
     case "Enemy":
       if (App.collides(App.Player.el, this.el))
@@ -60,7 +62,6 @@ Bullet.prototype.update = function (ms) {
   }
 
   if (hit) {
-    hit.die();
     this.state = "exploding";
     this.el.addClass("Explosion");
     var thingOffset = hit.el.offset();
@@ -71,6 +72,8 @@ Bullet.prototype.update = function (ms) {
 
     var that = this;
     setTimeout(function () { that.remove(); console.log("yay")}, 500);
+
+    hit.die();
   }
 };
 Bullet.prototype.remove = function () {

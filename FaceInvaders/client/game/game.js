@@ -64,14 +64,14 @@ var App = {
     App.Player = new Player();
 
     // Set up the log in to facebook button.
-    var loginButton = new BalloonButton("Log In to Facebook", function () {
-      if (App.fbLoaded && !App.loggedIn)
-        App.login();
+    var balloon = App.balloon = new BalloonButton("Log In to Facebook", function () {
+      App.login();
+      App.balloon = null;
     });
-    App.el.append(loginButton.el);
-    loginButton.el.offset({
-      left: (App.w - loginButton.el.outerWidth(true)) / 2,
-      top: (App.h - loginButton.el.outerHeight(true)) / 2,
+    App.el.append(balloon.el);
+    balloon.el.offset({
+      left: (App.w - balloon.el.outerWidth(true)) / 2,
+      top: (App.h - balloon.el.outerHeight(true)) / 2,
     });
 
     App.main();
@@ -111,7 +111,8 @@ var App = {
     }(document));
   },
   login: function () {
-    FB.login();
+    if (App.fbLoaded && !App.loggedIn)
+      FB.login();
   },
   logout: function () {
     FB.logout();

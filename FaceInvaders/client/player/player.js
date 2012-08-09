@@ -77,10 +77,9 @@ Player.prototype.update = function (ms) {
   perc = Math.min(perc, 1);
   this.x += perc * need;
 
-  if (need > 0)
-    this.el.removeClass("Left").addClass("Right");
-  else
-    this.el.removeClass("Right").addClass("Left");
+  // TODO: Move wheel rendering logic elsewhere
+  if (need > 0) this.el.removeClass("Left").addClass("Right");
+  else this.el.removeClass("Right").addClass("Left");
 };
 Player.prototype.render = function () {
   switch (this.state) {
