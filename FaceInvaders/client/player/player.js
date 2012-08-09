@@ -76,6 +76,11 @@ Player.prototype.update = function (ms) {
   var perc = Math.abs(disp / need);
   perc = Math.min(perc, 1);
   this.x += perc * need;
+
+  if (need > 0)
+    this.el.removeClass("Left").addClass("Right");
+  else
+    this.el.removeClass("Right").addClass("Left");
 };
 Player.prototype.render = function () {
   switch (this.state) {
@@ -124,9 +129,6 @@ Player.prototype.stepLeft = function () {
 
   var tx = this.tx - this.stepLength;
   this.tx = Math.max(tx, 0);
-
-  this.el.addClass("Left");
-  this.el.removeClass("Right");
 };
 Player.prototype.stepRight = function () {
   if (this.tx < this.x) {
@@ -141,9 +143,6 @@ Player.prototype.stepRight = function () {
   var tx = this.tx + this.stepLength;
   var max = App.w - this.w;
   this.tx = Math.min(tx, max);
-
-  this.el.addClass("Right");
-  this.el.removeClass("Left");
 };
 Player.prototype.die = function () {
   if (--this.lives == 0) {
