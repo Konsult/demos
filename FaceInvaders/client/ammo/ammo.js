@@ -44,16 +44,23 @@ Bullet.prototype.update = function (ms) {
   }
 
   var thingToExplode = null;
-  if (this.type == "Player" && App.collides(App.Fleet.el, this.el)) {
-    for (i in App.enemies) {
-      var e = App.enemies[i];
-      if (e.state == "alive" && App.collides(e.el, this.el)) {
-        thingToExplode = e;
-        break;
+  switch (this.type) {
+    case "Player":
+      if (App.Fleet && App.collides(App.Fleet.el, this.el)) {
+        for (i in App.enemies) {
+          var e = App.enemies[i];
+          if (e.state == "alive" && App.collides(e.el, this.el)) {
+            thingToExplode = e;
+            break;
+          }
+        }
       }
-    }
-  } else if (this.type == "Enemy" && App.collides(App.Player.el, this.el))
-    thingToExplode = App.Player;
+      break;
+    case "Enemy":
+      if (App.collides(App.Player.el, this.el))
+        thingToExplode = App.Player;
+      break;
+  }
 
   if (thingToExplode) {
     thingToExplode.die();
