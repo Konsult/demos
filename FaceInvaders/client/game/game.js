@@ -50,7 +50,15 @@ var App = {
         App.login();
       } else if (App.loggedIn && !App.gameInProgress) {
         App.loadGame(0);
+      } else if (App.gameInProgress) {
+        App.Player.fire();
       }
+    });
+    doc.mousemove(function (e) {
+      App.Player && App.Player.goto(e.pageX);
+    });
+    doc.bind("touchmove", function (e) {
+      App.Player && App.Player.goto(e.pageX);
     });
 
     App.Player = new Player();

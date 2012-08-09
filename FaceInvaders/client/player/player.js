@@ -93,6 +93,8 @@ Player.prototype.render = function () {
   }
 };
 Player.prototype.fire = function () {
+  if (this.state != "alive") return;
+
   var since = App.time - this.lastShot;
   if (since < this.shotInterval) return;
   this.lastShot = App.time;
@@ -106,6 +108,9 @@ Player.prototype.fire = function () {
   var b = new Bullet("Player");
   var x = this.w/2 - 10;
   b.fireFrom(this.el, x, 0);
+};
+Player.prototype.goto = function (x) {
+  this.tx = x - this.w / 2;
 };
 Player.prototype.stepLeft = function () {
   if (this.tx > this.x) {
