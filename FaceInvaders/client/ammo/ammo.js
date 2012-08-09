@@ -43,33 +43,30 @@ Bullet.prototype.update = function (ms) {
     return;
   }
 
-  var thingToExplode = null;
+  var el = this.el;
+  var hit = null;
   switch (this.type) {
     case "Player":
-      if (App.Fleet && App.collides(App.Fleet.el, this.el)) {
-        for (i in App.enemies) {
-          var e = App.enemies[i];
-          if (e.state == "alive" && App.collides(e.el, this.el)) {
-            thingToExplode = e;
-            break;
-          }
-        }
+      if (App.Fleet && App.collides(App.Fleet.el, el)) {
+        hit = _.find(App.enemies, function (e) {
+          return (e.state == "alive" && App.collides(e.el, el));
+        });
       }
       break;
     case "Enemy":
       if (App.collides(App.Player.el, this.el))
-        thingToExplode = App.Player;
+        hit = App.Player;
       break;
   }
 
-  if (thingToExplode) {
-    thingToExplode.die();
+  if (hit) {
+    hit.die();
     this.state = "exploding";
     this.el.addClass("Explosion");
-    var thingOffset = thingToExplode.el.offset();
+    var thingOffset = hit.el.offset();
     this.el.css({
-      top: thingOffset.top + thingToExplode.el.height() / 2,
-      left: thingOffset.left + thingToExplode.el.width() / 2,
+      top: thingOffset.top + hit.el.height() / 2,
+      left: thingOffset.left + hit.el.width() / 2,
     });
 
     var that = this;

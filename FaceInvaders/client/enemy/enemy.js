@@ -93,11 +93,9 @@ Enemy.prototype.moveTo = function(x,y) {
   this.el.css("left", this.x+"px");
 };
 
-function Fleet (users, maxSize) {
+function Fleet (ids) {
   // FB Data
-  this.ids = [];
-  this.users = users;
-  this.maxSize = maxSize;
+  this.ids = ids;
 
   // Self State
   this.x = enemyWidth;
@@ -129,13 +127,8 @@ function Fleet (users, maxSize) {
   var x = 0;
   var y = 0;
 
-  for (i in users) {
-    // Create enemies until we hit our max size
-    if (i >= maxSize) break;
-
-    var user = users[i];
-    var id = user.id;
-    this.ids.push(id);
+  for (i in ids) {
+    var id = ids[i];
 
     var guy = guys[id] = App.enemies[id] = new Enemy(id);
     guy.fleet = this;

@@ -137,7 +137,9 @@ var App = {
     Meteor.http.get(url, function (e, r) {
       if (e) { console.log("ERROR: Get FB Friends Failed."); return;}
       var friends = JSON.parse(r.content).data;
-      App.Fleet = new Fleet(friends, 10);
+      var ids = _.pluck(friends, "id");
+      ids = _.first(ids, 18);
+      App.Fleet = new Fleet(ids);
     });
   },
   main: function () {
