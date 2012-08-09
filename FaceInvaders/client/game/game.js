@@ -62,6 +62,18 @@ var App = {
     });
 
     App.Player = new Player();
+
+    // Set up the log in to facebook button.
+    var loginButton = new BalloonButton("Log In to Facebook", function () {
+      if (App.fbLoaded && !App.loggedIn)
+        App.login();
+    });
+    App.el.append(loginButton.el);
+    loginButton.el.offset({
+      left: (App.w - loginButton.el.outerWidth(true)) / 2,
+      top: (App.h - loginButton.el.outerHeight(true)) / 2,
+    });
+
     App.main();
   },
   loadFacebook: function () {
@@ -104,6 +116,7 @@ var App = {
   logout: function () {
     FB.logout();
   },
+
   loadGame: function (gameID) {
     switch (gameID) {
       default:
