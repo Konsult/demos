@@ -64,15 +64,24 @@ var App = {
     App.Player = new Player();
 
     // Set up the log in to facebook button.
+    var tooltip = new Tooltip("Shoot this to begin");
     var balloon = App.balloon = new BalloonButton("Log In to Facebook", function () {
       App.login();
       App.balloon = null;
+      tooltip.el.remove();
     });
     App.el.append(balloon.el);
-    balloon.el.offset({
+    var offset = {
       left: (App.w - balloon.el.outerWidth(true)) / 2,
       top: (App.h - balloon.el.outerHeight(true)) / 2,
-    });
+    }
+    balloon.el.offset(offset);
+
+    App.el.append(tooltip.el);
+    tooltip.el.offset({
+      top: offset.top - tooltip.el.outerHeight(true),
+      left: App.w / 2,
+    })
 
     App.main();
   },
