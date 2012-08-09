@@ -7,12 +7,55 @@ var App = {
   enemies: {},
   bullets: {},
 
-  el: null,
+  el: null, hud: null,
   w: 1440, h: 900,
 
   loggedIn: false,
   fbLoaded: false,
   gameInProgress: false,
+
+  launch: function (pel) {
+    // Set up DOM
+    var hud = App.hud = $("<div>");
+    hud.addClass("App");
+    pel.append(hud);
+
+    var el = App.el = $("<div>");
+    el.addClass("World");
+    hud.append(el);
+
+    // Fit the viewport
+    function resizeToViewport() {
+      App.w = App.W = $(window).width();
+      App.H = $(window).height();
+      App.h = App.H - 80;
+      hud.width(App.W);
+      hud.height(App.H);
+    }
+    $(window).resize(resizeToViewport);
+    resizeToViewport();
+
+    // Set up inputs
+    var doc = $(document);
+    doc.keydown(function (e) {
+      if (e.which == 32 && App.Player)
+        App.Player.fire();
+      if (e.which == 37 && App.Player)
+        App.Player.stepLeft();
+      if (e.which == 39 && App.Player)
+        App.Player.stepRight();
+    });
+    doc.click(function () {
+      if (App.fbLoaded && !App.loggedIn) {
+        App.login();
+      } else if (App.loggedIn && !App.gameInProgress) {
+        App.loadGame(0);
+      }
+    });
+
+    App.Player = new Player();
+    App.main();
+  },
   loadFacebook: function () {
     window.fbAsyncInit = function() {
       FB.init({
@@ -52,45 +95,6 @@ var App = {
   },
   logout: function () {
     FB.logout();
-  },
-  launch: function (pel) {
-    // Set up DOM
-    var el = App.el = $("<div>");
-    el.toggleClass("App");
-    pel.append(el);
-
-    // Fit the viewport
-    function resizeToViewport() {
-      App.w = $(window).width();
-      App.h = $(window).height();
-      el.width(App.w);
-      el.height(App.h);
-    }
-    $(window).resize(resizeToViewport);
-    resizeToViewport();
-
-    // Set up inputs
-    var doc = $(document);
-    doc.keydown(function (e) {
-      console.log(e.which);
-
-      if (e.which == 32 && App.Player)
-        App.Player.fire();
-      if (e.which == 37 && App.Player)
-        App.Player.stepLeft();
-      if (e.which == 39 && App.Player)
-        App.Player.stepRight();
-    });
-    doc.click(function () {
-      if (App.fbLoaded && !App.loggedIn) {
-        App.login();
-      } else if (App.loggedIn && !App.gameInProgress) {
-        App.loadGame(0);
-      }
-    });
-
-    App.Player = new Player();
-    App.main();
   },
   loadGame: function (gameID) {
     switch (gameID) {

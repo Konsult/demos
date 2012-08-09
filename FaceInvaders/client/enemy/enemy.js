@@ -79,7 +79,6 @@ Enemy.prototype.fire = function () {
   var b = new Bullet("Enemy");
   var x = this.w/2;
   b.fireFrom(this.el, x, this.h);
-  console.log("Enemy fired!");
 };
 Enemy.prototype.setSize = function (w,h) {
   this.w = w;

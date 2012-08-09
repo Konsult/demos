@@ -18,6 +18,8 @@ function Player () {
   this.moveType = "linear"; // Move via smooth linear motion
   this.speed = 200;         // 200px / second
   this.stepLength = 100;    // 100px wide steps
+  this.lastStep = App.time; // Timestamp of last step
+  this.stepInterval = 250;  // in ms
 
   // DOM State
   this.el = $("<div>");
@@ -111,6 +113,10 @@ Player.prototype.stepLeft = function () {
     return;
   }
 
+  var since = App.time - this.lastStep;
+  if (since < this.stepInterval) return;
+  this.lastStep = App.time;
+
   var tx = this.tx - this.stepLength;
   this.tx = Math.max(tx, 0);
 
@@ -122,6 +128,10 @@ Player.prototype.stepRight = function () {
     this.tx = this.x;
     return;
   }
+
+  var since = App.time - this.lastStep;
+  if (since < this.stepInterval) return;
+  this.lastStep = App.time;
 
   var tx = this.tx + this.stepLength;
   var max = App.w - this.w;
