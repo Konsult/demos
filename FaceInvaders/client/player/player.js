@@ -4,8 +4,8 @@ function Player () {
   this.friends = null;
 
   // Self State
-  this.x = this.tx = 0;
   this.w = 100; this.h = 95;
+  this.x = this.tx = (App.w / 2 - this.w / 2);
   this.state = "alive";
   this.deadAt = null;
   this.lives = 5;
