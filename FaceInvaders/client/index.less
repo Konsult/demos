@@ -1,3 +1,12 @@
+@z-explosion: 5;
+@z-unit: 4;
+@z-bullet: 3;
+@z-balloon: 2;
+@z-tooltip: 1;
+
+@z-unit-face: 1;
+@z-unit-body: 2;
+
 * {
 	padding: 0px;
 	margin: 0px;
@@ -37,6 +46,15 @@ body {
   overflow: hidden;
 
   opacity: 1;
+  z-index: @z-unit;
+
+  .Face {
+    z-index: @z-unit-face;
+  }
+
+  .Body {
+    z-index: @z-unit-body;
+  }
 }
 
 .Face {
@@ -65,8 +83,6 @@ body {
     left: 23px;
     width: 45px;
     height: 45px;
-
-    z-index: 1;
   }
 
   .Body {
@@ -75,7 +91,6 @@ body {
     left: 0;
     bottom: 0;
     right: 0;
-    z-index: 2;
 
    background-image: url("/images/player.png");
   }
@@ -87,7 +102,7 @@ body {
     bottom: 3px;
     height: 15px;
 
-    z-index: 3;
+    z-index: @z-unit-body + 1;
 
     .wheel {
       display: inline-block;
@@ -185,8 +200,6 @@ body {
     height: 100%;
     background-image: url('/images/invader.png');
     background-size: contain;
-
-    z-index: 2;
   }
 }
 .Enemy.Flipped, .Fleet.Flipped .Enemy {
@@ -231,7 +244,7 @@ body {
 .Bullet {
   position: absolute;
   overflow: hidden;
-  z-index: 100;
+  z-index: @z-bullet;
 }
 .PlayerBullet {
   background-image: url("/images/player_bullet.png");
@@ -271,7 +284,7 @@ body {
   -webkit-animation: explosion 0.5s step-start infinite;
 
   position: absolute;
-  z-index: 2000;
+  z-index: @z-explosion;
   width: 143px;
   height: 150px;
 
@@ -311,6 +324,7 @@ body {
   padding: 50px 20px 0 20px;
 
   position: absolute;
+  z-index: @z-balloon;
 
   text-align: center;
   font-size: 24px;
@@ -334,5 +348,5 @@ body {
 
   font-size: 18px;
 
-  z-index: 2;
+  z-index: @z-tooltip;
 }
