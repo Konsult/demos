@@ -1,24 +1,27 @@
-function Player () {
+function Player (game) {
+  var world = this.world = game.world;
+  this.game = game;
+
   // User Data
   this.id = this.name = null;
   this.friends = null;
 
   // Self State
   this.w = 100; this.h = 95;
-  this.x = this.tx = (App.w / 2 - this.w / 2);
+  this.x = this.tx = (this.world.w / 2 - this.w / 2);
   this.state = "alive";
   this.deadAt = null;
   this.lives = 5;
 
   // Shooting
   this.shotInterval = 1000;
-  this.lastShot = App.time;
+  this.lastShot = game.time;
 
   // Movement State
   this.moveType = "linear"; // Move via smooth linear motion
   this.speed = 200;         // 200px / second
   this.stepLength = 100;    // 100px wide steps
-  this.lastStep = App.time; // Timestamp of last step
+  this.lastStep = game.time; // Timestamp of last step
   this.stepInterval = 250;  // in ms
 
   // DOM State
@@ -42,7 +45,7 @@ function Player () {
     wheelContainer.append($("<div class='wheel'>"));
   this.el.append(wheelContainer);
 
-  App.el.append(this.el);
+  world.el.append(this.el);
 };
 Player.prototype.load = function () {
   this.id = FB.getUserID();
@@ -82,12 +85,14 @@ Player.prototype.update = function (ms) {
   else this.el.removeClass("Right").addClass("Left");
 };
 Player.prototype.render = function () {
+  var now = this.game.time;
+
   switch (this.state) {
     case "alive":
       this.el.css("left", this.x+"px");
       break;
     case "dead":
-      var since = App.time - this.deadAt;
+      var since = now - this.deadAt;
       if (since > 2000)
         this.el.css("display", "none");
       break;
@@ -97,11 +102,13 @@ Player.prototype.render = function () {
   }
 };
 Player.prototype.fire = function () {
+  var now = this.game.time;
+
   if (this.state != "alive") return;
 
-  var since = App.time - this.lastShot;
+  var since = now - this.lastShot;
   if (since < this.shotInterval) return;
-  this.lastShot = App.time;
+  this.lastShot = now;
 
   var el = this.el;
   el.addClass("Fire");
@@ -109,7 +116,7 @@ Player.prototype.fire = function () {
     el.removeClass("Fire");
   }, 150);
 
-  var b = new Bullet("Player");
+  var b = new Bullet("Player", this.game);
   var x = this.w/2 - 10;
   b.fireFrom(this.el, x, 0);
 };
@@ -117,36 +124,42 @@ Player.prototype.goto = function (x) {
   this.tx = x - this.w / 2;
 };
 Player.prototype.stepLeft = function () {
+  var now = this.game.time;
+
   if (this.tx > this.x) {
     this.tx = this.x;
     return;
   }
 
-  var since = App.time - this.lastStep;
+  var since = now - this.lastStep;
   if (since < this.stepInterval) return;
-  this.lastStep = App.time;
+  this.lastStep = now;
 
   var tx = this.tx - this.stepLength;
   this.tx = Math.max(tx, 0);
 };
 Player.prototype.stepRight = function () {
+  var now = this.game.time;
+
   if (this.tx < this.x) {
     this.tx = this.x;
     return;
   }
 
-  var since = App.time - this.lastStep;
+  var since = now - this.lastStep;
   if (since < this.stepInterval) return;
-  this.lastStep = App.time;
+  this.lastStep = now;
 
   var tx = this.tx + this.stepLength;
-  var max = App.w - this.w;
+  var max = this.world.w - this.w;
   this.tx = Math.min(tx, max);
 };
 Player.prototype.die = function () {
+  var now = this.game.time;
+
   if (--this.lives == 0) {
     this.state = "dead";
-    this.deadAt = App.time;
+    this.deadAt = now;
     this.el.addClass("dead");
   } else {
     // TODO: Stop moving, show explosion or flash, then fade back

@@ -3,7 +3,10 @@ var enemyHeight = 151 * 0.75;
 var enemyHSpacing = enemyWidth;
 var enemyVSpacing = 10;
 
-function Enemy (id) {
+function Enemy (id, game) {
+  var world = this.world = game.world;
+  this.game = game;
+
   // Self State
   this.id = id;
   this.fleet = null;
@@ -27,34 +30,43 @@ function Enemy (id) {
   this.face.el = $("<div class='Face'>");
   this.el.append(this.face.el);
 
-  // Load FB Data
-  var that = this;
-  FB.api(
-    {
-      method: 'fql.query',
-      query: 'SELECT name, pic_square, uid FROM user WHERE uid='+this.id
-    },
-    function(response) {
-      var user = response[0];
-      that.pic = user.pic_square;
-      that.name = user.name;
-      that.face.el.css("background-image", "url("+that.pic+")");
-    }
-  );
-
   // Add body
   var body = $("<div class='Body'>");
   this.el.append(body);
+
+  this.loadUser();
+};
+Enemy.prototype.loadUser = function(ms) {
+  var that = this;
+  var user = this.user = this.game.apis.fb.friends[this.id];
+
+  if (user) {
+    that.face.el.css("background-image", "url("+user.pic_square+")");
+    return;
+  }
+
+  FB.api(
+    {
+      method: 'fql.query',
+      query: 'SELECT name, pic_square, uid FROM user WHERE uid='+that.id
+    },
+    function(response) {
+      var user = that.user = response[0];
+      that.face.el.css("background-image", "url("+user.pic_square+")");
+    }
+  );
 };
 Enemy.prototype.update = function(ms) {
   // Nothing to really do by default...
 };
 Enemy.prototype.render = function() {
+  var now = this.game.time;
+
   switch (this.state) {
     case "alive":
       break;
     case "dead":
-      var since = App.time - this.deadAt;
+      var since = now - this.deadAt;
       if (since > 2000)
         this.el.css("display", "none");
       break;
@@ -64,8 +76,10 @@ Enemy.prototype.render = function() {
   }
 };
 Enemy.prototype.die = function () {
+  var now = this.game.time;
+
   this.state = "dead";
-  this.deadAt = App.time;
+  this.deadAt = now;
   this.el.addClass("dead");
   this.fleet.numAlive--;
 };
@@ -76,7 +90,7 @@ Enemy.prototype.fire = function () {
     that.el.removeClass("Fire");
   }, 150);
 
-  var b = new Bullet("Enemy");
+  var b = new Bullet("Enemy", this.game);
   var x = this.w/2;
   b.fireFrom(this.el, x, this.h);
 };
@@ -93,7 +107,11 @@ Enemy.prototype.moveTo = function(x,y) {
   this.el.css("left", this.x+"px");
 };
 
-function Fleet (ids) {
+function Fleet (ids, game) {
+  var world = this.world = game.world;
+  var now = game.time;
+  this.game = game;
+
   // FB Data
   this.ids = ids;
 
@@ -110,11 +128,11 @@ function Fleet (ids) {
   this.stepLength = 10;   // 10px wide steps
   this.stepInterval = 500;
   this.stepDirection = "right";
-  this.lastStep = App.time;
+  this.lastStep = now;
 
   // AI
   this.shotInterval = 1000;
-  this.lastShot = App.time;
+  this.lastShot = now;
 
   // DOM State
   var el = this.el = $("<div>");
@@ -123,14 +141,14 @@ function Fleet (ids) {
   this.setSize(this.w, this.h);
 
   // Construct Fleet
-  var guys = this.guys = {};
-  var x = 0;
-  var y = 0;
+  var guys = this.enemies = this.guys = {};
+  this.numAlive = this.ids.length;
+  var x = 0; var y = 0;
 
   for (i in ids) {
     var id = ids[i];
 
-    var guy = guys[id] = App.enemies[id] = new Enemy(id);
+    var guy = guys[id] = world.enemies[id] = new Enemy(id, game);
     guy.fleet = this;
     el.append(guy.el);
     guy.moveTo(x, y);
@@ -147,10 +165,12 @@ function Fleet (ids) {
       guy.el.toggleClass("Flipped");
   }
 
-  this.numAlive = this.ids.length;
-  App.el.append(this.el);
+  world.el.append(this.el);
 };
 Fleet.prototype.update = function(ms) {
+  var now = this.game.time;
+  var world = this.world;
+
   if (this.state == "dead") return;
 
   // If all our guys die, blow ourselves up
@@ -160,10 +180,10 @@ Fleet.prototype.update = function(ms) {
   }
 
   // Fire from a random guy at regular interval
-  var since = App.time - this.lastShot;
+  var since = now - this.lastShot;
   if (since > this.shotInterval) {
     var timeToFire = Math.random() * 250;
-    this.lastShot = App.time;
+    this.lastShot = now;
 
     var that = this;
     setTimeout(function () {
@@ -182,13 +202,13 @@ Fleet.prototype.update = function(ms) {
   }
 
   // Compute time since last step
-  since = App.time - this.lastStep;
+  since = now - this.lastStep;
   if (since < this.stepInterval) return;
-  this.lastStep = App.time;
+  this.lastStep = now;
 
   // Take the appropriate step
   if (this.stepDirection == "right") {
-    if ((this.x+this.w+this.stepLength) > App.w) {
+    if ((this.x+this.w+this.stepLength) > world.w) {
       this.stepDown();
       this.stepDirection = "left";
       return;
@@ -205,13 +225,15 @@ Fleet.prototype.update = function(ms) {
   this.el.toggleClass("Flipped");
 };
 Fleet.prototype.render = function() {
+  var now = this.game.time;
+
   switch (this.state) {
     case "alive":
       this.el.css("left", this.x+"px");
       this.el.css("top", this.y+"px");
       break;
     case "dead":
-      var since = App.time - this.deadAt;
+      var since = now - this.deadAt;
       if (since > 2000)
         this.el.css("display", "none");
       break;
@@ -226,11 +248,11 @@ Fleet.prototype.stepLeft = function () {
 };
 Fleet.prototype.stepRight = function () {
   this.x += this.stepLength;
-  this.x = Math.min(this.x, App.w-this.w);
+  this.x = Math.min(this.x, this.world.w-this.w);
 };
 Fleet.prototype.stepDown = function () {
   this.y += (3 * this.stepLength);
-  this.y = Math.min(this.y, App.h);
+  this.y = Math.min(this.y, this.world.h);
 };
 Fleet.prototype.setSize = function (w,h) {
   this.w = w;
@@ -239,7 +261,8 @@ Fleet.prototype.setSize = function (w,h) {
   this.el.height(h);
 };
 Fleet.prototype.die = function () {
+  var now = this.game.time;
   this.state = "dead";
-  this.deadAt = App.time;
+  this.deadAt = now;
   this.el.toggleClass("dead"); 
 };

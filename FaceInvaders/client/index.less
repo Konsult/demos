@@ -22,23 +22,63 @@ body {
   color: white;
 }
 
-.App {
+.SetArea {
   position: absolute;
   overflow: hidden;
-  width: 100%;
-  height: 100%;
+  margin: 0px;
+  padding: 0px;
 
   border: 1px solid black;
+}
+
+@consoleBottom: 80px;
+@consoleTop: 0px;
+@overlayHeight: 80px;
+@overlayOffset: 10px;
+
+.World {
+  .SetArea;
+
+  width: 100%;
+  top: @consoleBottom;
+  bottom: @consoleBottom;
+
+  background-color: blue;
+}
+.Controls {
+  .SetArea;
+
+  bottom: 0px;
+  width: 100%;
+  height: @consoleBottom;
+
   background-image: url("/images/pool_table.png");
 }
+.InfoOverlay {
+  .SetArea;
+
+  top: @overlayOffset;
+  height: @overlayHeight;
+  width: 100%;
+}
+
 .World {
   position: absolute;
-  bottom: 80px;
-  top: 0px;
   width: 100%;
+  top: 0px;
 
   overflow: hidden;
   background-color: black;
+}
+.BBar {
+  position: absolute;
+  width: 100%;
+  bottom: 0px;
+}
+.InfoBar {
+  position: absolute;
+  bottom: 0px;
+  right: 0px;
 }
 
 .Unit {
