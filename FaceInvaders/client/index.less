@@ -40,10 +40,10 @@ body {
   .SetArea;
 
   width: 100%;
-  top: @consoleBottom;
+  top: @consoleTop;
   bottom: @consoleBottom;
 
-  background-color: blue;
+  background-color: black;
 }
 .Controls {
   .SetArea;
@@ -60,25 +60,27 @@ body {
   top: @overlayOffset;
   height: @overlayHeight;
   width: 100%;
-}
 
-.World {
-  position: absolute;
-  width: 100%;
-  top: 0px;
+  color: white;
+  font-size: 150%;
 
-  overflow: hidden;
-  background-color: black;
+  z-index: 100;
 }
-.BBar {
-  position: absolute;
-  width: 100%;
-  bottom: 0px;
+.Score {
+  .SetArea;
+
+  top: 10px;
+  left: 20px;
+  width: 100px;
+  height: 70px;
 }
-.InfoBar {
-  position: absolute;
-  bottom: 0px;
-  right: 0px;
+.Lives {
+  .SetArea;
+
+  top: 10px;
+  right: 20px;
+  width: 100px;
+  height: 70px;
 }
 
 .Unit {

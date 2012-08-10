@@ -43,10 +43,17 @@ function InfoOverlay (game) {
   el.addClass("InfoOverlay");
   game.el.append(el);
 
-  this.el[0].innerHTML = "Infoz!";
+  var score = this.score = $("<div>");
+  score.addClass("Score");
+  el.append(score);
+
+  var lives = this.lives = $("<div>");
+  lives.addClass("Lives");
+  el.append(lives);
 };
 InfoOverlay.prototype.update = function (ms) {
-
+  this.score[0].innerHTML = "Score: "+this.game.score;
+  this.lives[0].innerHTML = "Lives: "+this.game.player.lives;
 };
 InfoOverlay.prototype.render = function (ms) {
   

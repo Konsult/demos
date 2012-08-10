@@ -1,5 +1,6 @@
 function Game (pel) {
   var that = this;
+  this.score = 0;
 
   // Load External APIs
   this.apis = {};
