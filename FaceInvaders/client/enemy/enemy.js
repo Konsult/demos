@@ -14,7 +14,6 @@ function Enemy (id, game) {
   this.w = enemyWidth;
   this.h = enemyHeight;
   this.state = "alive";
-  this.deadAt = null;
 
   // Movement State
   this.moveType = "linear"; // Move via smooth linear motion
@@ -67,9 +66,6 @@ Enemy.prototype.render = function() {
     case "alive":
       break;
     case "dead":
-      var since = now - this.deadAt;
-      if (since > 2000)
-        this.el.css("display", "none");
       break;
     case "loading":
       // Show spiny or glowing character without a face?
@@ -77,16 +73,18 @@ Enemy.prototype.render = function() {
   }
 };
 Enemy.prototype.die = function () {
+  if (this.state == "dead") return;
   var now = this.game.time;
 
   this.state = "dead";
-  this.deadAt = now;
-  this.el.addClass("dead");
-  this.fleet.numAlive--;
+  this.el.remove();
 
+  this.fleet.numAlive--;
   this.game.score += this.score;
 };
 Enemy.prototype.fire = function () {
+  if (this.state == "dead") return;
+
   this.el.addClass("Fire");
   var that = this;
   setTimeout(function () {
@@ -145,14 +143,14 @@ function Fleet (ids, game) {
   this.setSize(this.w, this.h);
 
   // Construct Fleet
-  var guys = this.enemies = this.guys = {};
+  var ships = this.ships = {};
   this.numAlive = this.ids.length;
   var x = 0; var y = 0;
 
   for (i in ids) {
     var id = ids[i];
 
-    var guy = guys[id] = world.enemies[id] = new Enemy(id, game);
+    var guy = ships[id] = world.enemies[id] = new Enemy(id, game);
     guy.fleet = this;
     el.append(guy.el);
     guy.moveTo(x, y);
@@ -172,37 +170,26 @@ function Fleet (ids, game) {
   world.el.append(this.el);
 };
 Fleet.prototype.update = function(ms) {
-  var now = this.game.time;
-  var world = this.world;
-
   if (this.state == "dead") return;
 
-  // If all our guys die, blow ourselves up
+  // If all our ships die, blow ourselves up
   if (this.numAlive == 0) {
     this.die();
     return;
   }
 
+  var now = this.game.time;
+  var world = this.world;
+
+  _.each(this.ships, function (ship, id, ships) {
+    if (ship.state == "dead") delete ships[id];
+  });
+
   // Fire from a random guy at regular interval
   var since = now - this.lastShot;
   if (since > this.shotInterval) {
-    var timeToFire = Math.random() * 250;
     this.lastShot = now;
-
-    var that = this;
-    setTimeout(function () {
-      var num = that.numAlive * Math.random();
-      num = Math.round(num-0.5);
-
-      for (var i = 0; i < that.ids.length; i++) {
-        var id = that.ids[i];
-        if (!num) {
-          that.guys[id].fire();
-          return;
-        }
-        if (that.guys[id].state == "alive") num--;
-      }
-    }, timeToFire);
+    this.fire();
   }
 
   // Compute time since last step
@@ -227,6 +214,26 @@ Fleet.prototype.update = function(ms) {
     this.stepLeft();
   }
   this.el.toggleClass("Flipped");
+};
+Fleet.prototype.step = function () {
+
+};
+Fleet.prototype.fire = function () {
+  var that = this;
+  var timeToFire = Math.random() * 250;
+
+  setTimeout(function () {
+    var num = that.numAlive * Math.random();
+    num = Math.round(num-0.5) + 1;
+
+    for (var i = 0; i < that.ids.length; i++) {
+      var id = that.ids[i];
+      var ship = that.ships[id];
+      if (!ship) continue;
+      if (ship.state == "alive") num--;
+      if (!num) { ship.fire(); return; }
+    }
+  }, timeToFire);
 };
 Fleet.prototype.render = function() {
   var now = this.game.time;

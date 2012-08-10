@@ -53,7 +53,7 @@ Bullet.prototype.update = function (ms) {
   switch (this.type) {
     case "Player":
       if (world.fleet && game.collides(world.fleet, this)) {
-        var enemies = world.fleet.enemies;
+        var enemies = world.fleet.ships;
         hit = _.find(enemies, function (e) {
           return (e.state == "alive" && game.collides(e, that));
         });
