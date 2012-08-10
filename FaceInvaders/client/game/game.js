@@ -137,6 +137,8 @@ function World (game) {
 
   this.h = el.height();
   this.w = el.width();
+
+  this.el.append($("<div class='Foreground'>"));
 };
 World.prototype.update = function (ms) {
   this.h = this.el.height();

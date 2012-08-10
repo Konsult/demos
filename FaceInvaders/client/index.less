@@ -1,3 +1,4 @@
+@z-foreground: 6;
 @z-explosion: 5;
 @z-unit: 4;
 @z-bullet: 3;
@@ -27,8 +28,6 @@ body {
   overflow: hidden;
   margin: 0px;
   padding: 0px;
-
-  border: 1px solid black;
 }
 
 @consoleBottom: 80px;
@@ -43,7 +42,19 @@ body {
   top: @consoleTop;
   bottom: @consoleBottom;
 
-  background-color: black;
+  background-color: skyblue;
+
+  .Foreground {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 50px;
+
+    background-image: url('/images/ground.png');
+    background-repeat: repeat-x;
+    z-index: @z-foreground;
+  }
 }
 .Controls {
   .SetArea;
@@ -51,8 +62,6 @@ body {
   bottom: 0px;
   width: 100%;
   height: @consoleBottom;
-
-  background-image: url("/images/pool_table.png");
 }
 .InfoOverlay {
   .SetArea;
