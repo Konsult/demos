@@ -34,6 +34,7 @@ function Controls (game) {
       else doc.off("keydown");
     }
   };
+  keyboard.el.click(this, keyboard.toggle);
 
   var mouse = this.mouse = {
     on: false,
@@ -61,10 +62,10 @@ function Controls (game) {
       }
     }
   };
-
-  keyboard.el.click(this, keyboard.toggle);
   mouse.el.click(this, mouse.toggle);
 
+  // By default, turn on keyboard, leave on touch permanently
+  keyboard.el.click();
   $(document).bind("touchmove", this, function (e) {
     var game = e.data.game.player;
     player && player.goto(e.pageX);
