@@ -85,6 +85,10 @@ Game.prototype.showLogin = function () {
 
   var el = balloon.el;
   var world = this.world;
+
+  world.el.append(el);
+  world.el.append(tooltip.el);
+
   var offset = {
     left: (world.w - el.outerWidth(true)) / 2,
     top: (world.h - el.outerHeight(true)) / 2,
@@ -96,8 +100,6 @@ Game.prototype.showLogin = function () {
     left: world.w / 2,
   });
 
-  world.el.append(el);
-  world.el.append(tooltip.el);
 };
 Game.prototype.startLevel = function (id) {
   var world = this.world;
