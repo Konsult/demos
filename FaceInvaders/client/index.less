@@ -103,9 +103,13 @@ body {
   }
 }
 .DayContainer {
+  @sunWidth: 82px;
+
   .SetArea;
-  width: 100%;
+  width: @sunWidth;
   height: 100%;
+  left: 50%;
+  margin-left: -@sunWidth / 2;
 
   -webkit-transform-origin: bottom;
   -webkit-animation: day-rotation @day-length linear infinite;
@@ -113,7 +117,7 @@ body {
   .Sun {
     .SetArea;
     background-image: url('/images/day.png');
-    width: 82px;
+    width: @sunWidth;
     height: 73px;
 
     left: 50%;
@@ -154,26 +158,30 @@ body {
     background-image: url('/images/day.png');
     z-index: @z-cloud;
 
-    left: -25%;
+    left: -10%;
     -webkit-transition: left linear;
   }
 
   .Bacon1 {
+    .Cloud;
     width: 50px;
     height: 24px;
     background-position: -82px 0;
   }
   .Bacon2 {
+    .Cloud;
     width: 43px;
     height: 14px;
     background-position: -82px -24px;
   }
   .Egg1 {
+    .Cloud;
     width: 35px;
     height: 18px;
     background-position: -82px -38px;
   }
   .Egg2 {
+    .Cloud;
     width: 45px;
     height: 15px;
     background-position: -82px -58px;

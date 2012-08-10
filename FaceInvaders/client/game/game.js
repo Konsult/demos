@@ -147,8 +147,8 @@ function World (game) {
 
   var cloudContainer = $("<div class='CloudContainer'>");
   this.el.append(cloudContainer);
-  for (var i = 0; i < 5; i++)
-    createCloud(cloudContainer, i === 0 ? 0 : undefined);
+  for (var i = 0; i < 10; i++)
+    createCloud(cloudContainer);
 };
 World.prototype.update = function (ms) {
   this.h = this.el.height();
