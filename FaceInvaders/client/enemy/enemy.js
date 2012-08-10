@@ -123,12 +123,12 @@ function Fleet (ids, game) {
   this.w = (enemyWidth + enemyHSpacing) * 4 - enemyHSpacing;
   this.h = (enemyHeight + enemyVSpacing) * 4 - enemyVSpacing;
   this.state = "alive";
-  this.deadAt = null;
 
   // Movement State
   this.moveType = "step"; // Move by steps
   this.stepLength = 10;   // 10px wide steps
   this.stepInterval = 500;
+  this.minStepInterval = 100;
   this.stepDirection = "right";
   this.lastStep = now;
 
@@ -178,24 +178,28 @@ Fleet.prototype.update = function(ms) {
     return;
   }
 
-  var now = this.game.time;
-  var world = this.world;
-
+  // Clear out dead ships
   _.each(this.ships, function (ship, id, ships) {
     if (ship.state == "dead") delete ships[id];
   });
 
-  // Fire from a random guy at regular interval
-  var since = now - this.lastShot;
+  // Update Position
+  var now = this.game.time;
+  var since = now - this.lastStep;
+  if (since > this.stepInterval) {
+    this.lastStep = now;
+    this.step();
+  }
+
+  // Fire when ready
+  since = now - this.lastShot;
   if (since > this.shotInterval) {
     this.lastShot = now;
     this.fire();
   }
-
-  // Compute time since last step
-  since = now - this.lastStep;
-  if (since < this.stepInterval) return;
-  this.lastStep = now;
+};
+Fleet.prototype.step = function () {
+  var world = this.game.world;
 
   // Take the appropriate step
   if (this.stepDirection == "right") {
@@ -214,9 +218,6 @@ Fleet.prototype.update = function(ms) {
     this.stepLeft();
   }
   this.el.toggleClass("Flipped");
-};
-Fleet.prototype.step = function () {
-
 };
 Fleet.prototype.fire = function () {
   var that = this;
@@ -244,9 +245,6 @@ Fleet.prototype.render = function() {
       this.el.css("top", this.y+"px");
       break;
     case "dead":
-      var since = now - this.deadAt;
-      if (since > 2000)
-        this.el.css("display", "none");
       break;
     case "loading":
       // Show spiny or glowing character without a face?
@@ -272,10 +270,7 @@ Fleet.prototype.setSize = function (w,h) {
   this.el.height(h);
 };
 Fleet.prototype.die = function () {
-  var now = this.game.time;
   this.state = "dead";
-  this.deadAt = now;
-  this.el.toggleClass("dead");
-
+  this.el.remove();
   this.game.score += this.score;
 };
