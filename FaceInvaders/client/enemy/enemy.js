@@ -122,8 +122,8 @@ function Fleet (ids, game) {
   this.score = 500;
   this.x = enemyWidth;
   this.y = enemyHeight;
-  this.w = (enemyWidth + enemyHSpacing) * 6 - enemyHSpacing;
-  this.h = (enemyHeight + enemyVSpacing) * 6 - enemyVSpacing;
+  this.w = (enemyWidth + enemyHSpacing) * 4 - enemyHSpacing;
+  this.h = (enemyHeight + enemyVSpacing) * 4 - enemyVSpacing;
   this.state = "alive";
   this.deadAt = null;
 

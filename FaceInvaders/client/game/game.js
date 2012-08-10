@@ -107,7 +107,7 @@ Game.prototype.startLevel = function (id) {
   var game = this;
 
   this.apis.fb.getFriends(function () {
-    var ids = _.first(game.apis.fb.friendIDs, 18);
+    var ids = _.first(game.apis.fb.friendIDs, 8);
     world.fleet = new Fleet(ids, game);
   });
 };
