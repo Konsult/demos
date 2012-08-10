@@ -80,6 +80,7 @@ Enemy.prototype.die = function () {
   this.el.remove();
 
   this.fleet.numAlive--;
+  this.fleet.stepInterval *= .9;
   this.game.score += this.score;
 };
 Enemy.prototype.fire = function () {
@@ -128,7 +129,7 @@ function Fleet (ids, game) {
   this.moveType = "step"; // Move by steps
   this.stepLength = 10;   // 10px wide steps
   this.stepInterval = 500;
-  this.minStepInterval = 100;
+  
   this.stepDirection = "right";
   this.lastStep = now;
 
