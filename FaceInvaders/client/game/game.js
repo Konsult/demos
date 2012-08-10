@@ -139,6 +139,10 @@ function World (game) {
   this.w = el.width();
 
   this.el.append($("<div class='Foreground'>"));
+
+  var day = $("<div class='DayContainer'>");
+  day.append($("<div class='Sun'>"));
+  this.el.append(day);
 };
 World.prototype.update = function (ms) {
   this.h = this.el.height();

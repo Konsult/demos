@@ -1,12 +1,16 @@
-@z-foreground: 6;
-@z-explosion: 5;
-@z-unit: 4;
-@z-bullet: 3;
-@z-balloon: 2;
-@z-tooltip: 1;
+@z-foreground: 8;
+@z-explosion: 7;
+@z-unit: 6;
+@z-bullet: 5;
+@z-balloon: 4;
+@z-tooltip: 3;
+@z-cloud: 2;
+@z-sky: 1;
 
 @z-unit-face: 1;
 @z-unit-body: 2;
+
+@day-length: 5s;
 
 * {
 	padding: 0px;
@@ -56,6 +60,36 @@ body {
     z-index: @z-foreground;
   }
 }
+
+@-webkit-keyframes day-rotation {
+  0% {
+    -webkit-transform: rotate(0);
+  }
+  50% {
+    -webkit-transform: rotate(180);
+  }
+}
+
+.DayContainer {
+  .SetArea;
+  width: 100%;
+  height: 100%;
+
+  -webkit-trasnform-origin: bottom;
+  -webkit-animation: day-rotation @day-length*2 linear infinite;
+
+  .Sun {
+    .SetArea;
+    background-image: url('/images/day.png');
+    width: 82px;
+    height: 73px;
+
+    left: 50%;
+    margin-left: -41px;
+    top: 20px;
+  }
+}
+
 .Controls {
   .SetArea;
 
