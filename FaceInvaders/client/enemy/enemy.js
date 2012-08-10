@@ -119,10 +119,8 @@ function Fleet (ids, game) {
 
   // Self State
   this.score = 500;
-  this.x = enemyWidth;
-  this.y = enemyHeight;
-  this.w = (enemyWidth + enemyHSpacing) * 4 - enemyHSpacing;
-  this.h = (enemyHeight + enemyVSpacing) * 4 - enemyVSpacing;
+  this.x = enemyWidth/2;
+  this.y = enemyHeight/2;
   this.state = "alive";
 
   // Movement State
@@ -141,34 +139,48 @@ function Fleet (ids, game) {
   var el = this.el = $("<div>");
   this.el.toggleClass("Group");
   this.el.toggleClass("Fleet");
-  this.setSize(this.w, this.h);
 
   // Construct Fleet
   var ships = this.ships = {};
   this.numAlive = this.ids.length;
-  var x = 0; var y = 0;
 
   for (i in ids) {
     var id = ids[i];
-
-    var guy = ships[id] = world.enemies[id] = new Enemy(id, game);
-    guy.fleet = this;
-    el.append(guy.el);
-    guy.moveTo(x, y);
-
-    if (x + guy.w > this.w - 10) {
-      y += enemyHeight + enemyVSpacing;
-      x = 0;
-    } else {
-      x += enemyWidth + enemyHSpacing;
-    }
-
-    // Reverse some of them.
-    if (Math.random() >= 0.5)
-      guy.el.toggleClass("Flipped");
+    var ship = ships[id] = world.enemies[id] = new Enemy(id, game);
+    ship.fleet = this;
+    el.append(ship.el);
   }
 
+  this.setFormation({type: "rows", perrow: 4});
   world.el.append(this.el);
+};
+Fleet.prototype.setFormation = function(formation) {
+  switch (formation.type) {
+    case "rows":
+      var perrow = formation.perrow;
+      this.w = (enemyWidth + enemyHSpacing) * perrow - enemyHSpacing;
+      var rows = Math.round(this.numAlive / perrow + 0.5);
+      this.h = (enemyHeight + enemyVSpacing) *  rows - enemyVSpacing;
+      this.setSize(this.w, this.h);
+
+      var that = this;
+      var x = 0; var y = 0;
+      _.each(this.ships, function (ship) {
+
+        ship.moveTo(x, y);
+        if (x + ship.w > that.w - enemyHSpacing) {
+          y += enemyHeight + enemyVSpacing;
+          x = 0;
+        } else {
+          x += enemyWidth + enemyHSpacing;
+        }
+
+        // Reverse some of them.
+        if (Math.random() >= 0.5)
+          ship.el.toggleClass("Flipped");
+      });
+    break;
+  }
 };
 Fleet.prototype.update = function(ms) {
   if (this.state == "dead") return;
