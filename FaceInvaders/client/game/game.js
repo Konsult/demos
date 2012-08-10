@@ -5,26 +5,19 @@ function Game (pel) {
   // Load External APIs
   this.apis = {};
   var fb = this.apis.fb = new FacebookAPI("485761404769776");
-
   fb.loadAsync(function () {
-    if (fb.status == "out")
-      that.showLogin();
+    setTimeout(function () {
+      if (fb.status == "out")
+        that.showLogin();
+    }, 1000);
   });
+
+  // App Size Constants
+  this.consoleHeight = 80;
 
   // Create Game DOM Root
   var el = this.el = $("<div>");
-  this.pel = pel;
-  pel.append(el);
-
-  // Snap to the Viewport
-  var that = this;
-  function resizeToViewport() {
-    var w = that.w = $(window).width();
-    var h = that.h = $(window).height();
-    el.width(w); el.height(h);
-  }
-  $(window).resize(resizeToViewport);
-  resizeToViewport();
+  this.pel = pel.append(el);
 
   // Create Game World
   var world = this.world = new World(this);
@@ -131,31 +124,35 @@ function World (game) {
   this.enemies = {};
   this.bullets = {};
 
-  var el = this.el = $("<div>");
-  el.addClass("World");
-  game.el.append(el);
+  var el = this.el = $("<div>").addClass("World").appendTo(game.el);
+  el.css("bottom", game.consoleHeight+"px");
 
-  this.h = el.height();
-  this.w = el.width();
+  // Update Size w.r.t. the Viewport
+  var that = this;
+  function resizeToViewport() {
+    that.w = $(window).width();
+    that.h = $(window).height() - that.game.consoleHeight;
+  }
+  $(window).resize(resizeToViewport);
+  resizeToViewport();
 
+  // Foreground Layer
   this.el.append($("<div class='Foreground'>"));
 
-  // Create the sky
-  var sky = $("<div class='RotatingSky'>");
+  // Sky Layer
+  var sky = $("<div class='RotatingSky'>").appendTo(el);
   sky.append($("<div class='Sun'>"));
-  this.el.append(sky);
 
-  var cloudContainer = $("<div class='CloudContainer'>");
-  this.el.append(cloudContainer);
-  for (var i = 0; i < 10; i++)
-    createCloud(cloudContainer);
+  // Cloud Layer
+  var clouds = $("<div class='CloudContainer'>").appendTo(el);
+  for (var i = 0; i < 10; i++) {
+    createCloud(clouds);
+  }
 
+  // Night Layer
   createNightSky(sky, 10);
 };
 World.prototype.update = function (ms) {
-  this.h = this.el.height();
-  this.w = this.el.width();
-
   function u(o) {o && o.update(ms);};
   this.fleet && this.fleet.update(ms);
   _.each(this.enemies, u);

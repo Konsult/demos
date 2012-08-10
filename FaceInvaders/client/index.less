@@ -33,8 +33,6 @@ body {
   padding: 0px;
 }
 
-@consoleBottom: 80px;
-@consoleTop: 0px;
 @overlayHeight: 80px;
 @overlayOffset: 10px;
 
@@ -69,8 +67,7 @@ body {
   .SetArea;
 
   width: 100%;
-  top: @consoleTop;
-  bottom: @consoleBottom;
+  top: 0px;
 
   -webkit-animation: sky-color @day-length infinite linear;
 
@@ -262,7 +259,6 @@ body {
 
   bottom: 0px;
   width: 100%;
-  height: @consoleBottom;
 
   background-color: rgba(50, 180, 80, 1.0);
 }
@@ -273,7 +269,7 @@ body {
 .Toggle {
   .SetArea;
 
-  top: 10px;
+  top: 15px;
   left: 20px;
   width: @toggleWidth;
   height: @toggleHeight;

@@ -5,6 +5,7 @@ function Controls (game) {
 
   var el = this.el = $("<div>");
   el.addClass("Controls");
+  el.css("height", game.consoleHeight+"px");
   game.el.append(el);
 
   var toggle = $("<div>");

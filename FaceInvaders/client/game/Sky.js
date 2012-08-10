@@ -1,15 +1,13 @@
 var cloudClasses = ["Bacon1", "Bacon2", "Egg1", "Egg2"];
 var cloudDuration = 50000;
 
-function createCloud (container, delay) {
-  var c = container;
-  var el = $("<div>");
+function createCloud (pel, delay) {
+  var el = $("<div>").appendTo(pel);
   el.addClass(cloudClasses[Math.floor(Math.random() * cloudClasses.length)]);
 
   if (delay === undefined)
     delay = Math.random() * cloudDuration;
   var duration = Math.random() * cloudDuration + cloudDuration;
-  c.append(el);
   
   setTimeout(function () {
     el.css({
@@ -20,10 +18,10 @@ function createCloud (container, delay) {
 
     setTimeout(function () {
       el.remove();
-      createCloud(c, 0);
+      createCloud(pel, 0);
     }, duration);
   }, delay);
-}
+};
 
 var twinkleDuration = 5;
 var starClasses = ["RedStar", "YellowStar", "YellowDot", "PinkDot", "BlueStar", "SeptStar"];
