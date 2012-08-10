@@ -5,16 +5,41 @@ function Controls (game) {
   el.addClass("Controls");
   game.el.append(el);
 
-  this.el[0].innerHTML = "Controlz!";
+  var toggle = $("<div>");
+  toggle.addClass("Toggle");
+  el.append(toggle);
+
+  var inputs = this.inputs = {
+    keyboard: {
+      on: false,
+      el: $("<div>").appendTo(toggle).addClass("ToggleKeyboard")
+    },
+    mouse: {
+      on: true,
+      el: $("<div>").appendTo(toggle).addClass("ToggleMouse").addClass("toggled")
+    }
+  };
+
+  inputs.keyboard.el.click({me:inputs.keyboard}, function (e) {
+    e.data.me.on = !e.data.me.on;
+    e.data.me.el.toggleClass("toggled");
+  });
+  inputs.mouse.el.click({me:inputs.mouse}, function (e) {
+    e.data.me.on = !e.data.me.on;
+    e.data.me.el.toggleClass("toggled");
+  });
+
   this.init();
 };
 Controls.prototype.init = function () {
   var doc = $(document);
-  var player = this.game.player;
+  var data = {game: this.game};
 
-  // Setup Keyboard Listeners
-  doc.keydown(function (e) {
-    var player = window.app.player;
+  // Keyboard
+  doc.keydown(data, function (e) {
+    var game = e.data.game;
+    var player = game.player;
+
     if (e.which == 32 && player)
       player.fire();
     if (e.which == 37 && player)
@@ -22,16 +47,26 @@ Controls.prototype.init = function () {
     if (e.which == 39 && player)
       player.stepRight();
   });
-  doc.click(function () {
-    var player = window.app.player;
+
+  // Mouse
+  doc.click(data, function (e) {
+    var game = e.data.game;
+    var player = game.player;
+
     player && player.fire();
   });
-  doc.mousemove(function (e) {
-    var player = window.app.player;
+  doc.mousemove(data, function (e) {
+    var game = e.data.game;
+    var player = game.player;
+
     player && player.goto(e.pageX);
   });
-  doc.bind("touchmove", function (e) {
-    var player = window.app.player;
+
+  // Touch
+  doc.bind("touchmove", data, function (e) {
+    var game = e.data.game;
+    var player = game.player;
+
     player && player.goto(e.pageX);
   });
 };

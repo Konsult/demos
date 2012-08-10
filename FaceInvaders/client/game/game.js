@@ -26,13 +26,13 @@ function Game (pel) {
   $(window).resize(resizeToViewport);
   resizeToViewport();
 
-  // Create Game Console
-  var info = this.info = new InfoOverlay(this);
-  var controls = this.controls = new Controls(this);
-
   // Create Game World
   var world = this.world = new World(this);
   var player = this.player = new Player(this);
+
+  // Create Game Console
+  var info = this.info = new InfoOverlay(this);
+  var controls = this.controls = new Controls(this);
 
   // Load Player
   fb.statusChange(function () {
