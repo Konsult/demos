@@ -63,6 +63,35 @@ body {
   }
 }
 
+.LevelText {
+  .SetArea;
+
+  width: 50%;
+  height: 50%;
+  top: 25%;
+  left: -50%;
+
+  text-align: center;
+  font-size: 200%;
+  color: white;
+
+  -webkit-transition-property: top, left;
+  -webkit-transition-duration: 1s;
+  -webkit-transition-timing-function: ease-out;
+
+  transition-property: top, left;
+  transition-duration: 1s;
+  transition-timing-function: ease-out;
+}
+.LevelText.in {
+  top: 25%;
+  left: 25%;
+}
+.LevelText.out {
+  top: -50%;
+  left: 25%;
+}
+
 .World {
   .SetArea;
 
@@ -491,7 +520,7 @@ body {
 .Enemy {
   -webkit-transition-property: top, left, height, width;
   -webkit-transition-duration: 1.0s;
-  -webkit-transition-timing-funciton: linear;
+  -webkit-transition-timing-function: linear;
 
   .Face {
     position: absolute;

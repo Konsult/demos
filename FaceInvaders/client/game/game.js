@@ -32,7 +32,7 @@ function Game (pel) {
     if (fb.status == "in") {
       that.balloon && that.balloon.die();
       player.load();
-      that.startLevel(0);
+      that.startLevel(1);
     }
   });
 
@@ -98,6 +98,11 @@ Game.prototype.showLogin = function () {
 Game.prototype.startLevel = function (id) {
   var world = this.world;
   var game = this;
+
+  var outer = $("<div>").addClass("LevelText").appendTo(this.el);
+  var el = $("<h1>").appendTo(outer).html("Level "+id);
+  setTimeout(function () {outer.addClass("in");}, 0);
+  setTimeout(function () {outer.addClass("out");}, 2000);
 
   this.apis.fb.getFriends(function () {
     var ids = _.first(game.apis.fb.friendIDs, 8);
