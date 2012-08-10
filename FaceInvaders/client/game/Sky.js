@@ -24,3 +24,23 @@ function createCloud (container, delay) {
     }, duration);
   }, delay);
 }
+
+var twinkleDuration = 5;
+var starClasses = ["RedStar", "YellowStar", "YellowDot", "PinkDot", "BlueStar", "SeptStar"];
+function createNightSky (container, numberOfStars) {
+  var sky = $("<div class='NightContainer'>");
+  sky.append($("<div class='Moon'>"));
+
+  for (var i = 0; i < numberOfStars; i++) {
+    var star = $("<div>");
+    star.addClass(starClasses[Math.floor(Math.random() * starClasses.length)]);
+    star.css({
+      left: Math.floor(Math.random() * 100) -10 + "%",
+      top: Math.floor(Math.random() * 75) + "%",
+      "-webkit-animation-delay": Math.random() * twinkleDuration + "s",
+    });
+    sky.append(star);
+  }
+
+  container.append(sky);
+}

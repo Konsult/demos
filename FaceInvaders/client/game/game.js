@@ -141,14 +141,16 @@ function World (game) {
   this.el.append($("<div class='Foreground'>"));
 
   // Create the sky
-  var day = $("<div class='DayContainer'>");
-  day.append($("<div class='Sun'>"));
-  this.el.append(day);
+  var sky = $("<div class='RotatingSky'>");
+  sky.append($("<div class='Sun'>"));
+  this.el.append(sky);
 
   var cloudContainer = $("<div class='CloudContainer'>");
   this.el.append(cloudContainer);
   for (var i = 0; i < 10; i++)
     createCloud(cloudContainer);
+
+  createNightSky(sky, 10);
 };
 World.prototype.update = function (ms) {
   this.h = this.el.height();

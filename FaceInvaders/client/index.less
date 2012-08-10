@@ -102,30 +102,7 @@ body {
     -webkit-transform: rotate(360deg);
   }
 }
-.DayContainer {
-  @sunWidth: 82px;
-
-  .SetArea;
-  width: @sunWidth;
-  height: 100%;
-  left: 50%;
-  margin-left: -@sunWidth / 2;
-
-  -webkit-transform-origin: bottom;
-  -webkit-animation: day-rotation @day-length linear infinite;
-
-  .Sun {
-    .SetArea;
-    background-image: url('/images/day.png');
-    width: @sunWidth;
-    height: 73px;
-
-    left: 50%;
-    margin-left: -41px;
-    top: 20px;
-  }
-}
-@-webkit-keyframes cloud-fade {
+@-webkit-keyframes day-fade {
   0% {
      opacity: 1;
   }
@@ -145,13 +122,38 @@ body {
      opacity: 1;
   }
 }
+.RotatingSky {
+  @sunWidth: 82px;
+
+  .SetArea;
+  width: 100%;
+  top: 10%;
+  height: 180%;
+
+  -webkit-transform-origin: center;
+  -webkit-animation: day-rotation @day-length linear infinite;
+
+  .Sun {
+    .SetArea;
+    background-image: url('/images/day.png');
+    width: @sunWidth;
+    height: 73px;
+
+    left: 50%;
+    margin-left: -41px;
+    top: 20px;
+
+  -webkit-animation: day-fade @day-length infinite linear;
+  }
+}
 .CloudContainer {
   .SetArea;
 
-  width: 100%;
+  width: 200%;
   height: 75%;
+  left: -100%;
 
-  -webkit-animation: cloud-fade @day-length infinite linear;
+  -webkit-animation: day-fade @day-length infinite linear;
 
   .Cloud {
     .SetArea;
@@ -185,6 +187,74 @@ body {
     width: 45px;
     height: 15px;
     background-position: -82px -58px;
+  }
+}
+@-webkit-keyframes twinkle {
+  50% { opacity: 0; }
+}
+.NightContainer {
+  .SetArea;
+
+  width: 100%;
+  height: 50%;
+
+  -webkit-transform-origin: bottom;
+  -webkit-transform: rotate(180deg);
+  -webkit-animation: day-fade @day-length @day-length/2 linear infinite;
+
+  .Moon {
+    .SetArea;
+    left: 50%;
+    top: 0;
+    margin-left: -20px;
+
+    background-image: url('/images/night.png');
+    width: 41px;
+    height: 46px;
+    background-position: -36px 0;
+    z-index: @z-sky;
+  }
+  .Star {
+    .SetArea;
+    background-image: url('/images/night.png');
+    @z-index: @z-cloud;
+
+    -webkit-animation: twinkle 5s linear infinite;
+  }
+  .RedStar {
+    .Star;
+    width: 17px;
+    height: 18px;
+  }
+  .YellowStar {
+    .Star;
+    width: 17px;
+    height: 17px;
+    background-position: 0 -18px;
+  }
+  .YellowDot {
+    .Star;
+    width: 4px;
+    height: 4px;
+    background-position: -17px 0;
+  }
+  .PinkDot {
+    .Star;
+    width: 5px;
+    height: 5px;
+    background-position: -23px 0;
+  }
+  .BlueStar {
+    .Star;
+    width: 13px;
+    height: 20px;
+    background-position: -23px -9px;
+  }
+  .SeptStar {
+    .Star;
+    width: 19px;
+    height: 17px;
+    background-position: -17px -29px;
   }
 }
 
