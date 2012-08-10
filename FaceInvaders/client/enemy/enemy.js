@@ -9,6 +9,7 @@ function Enemy (id, game) {
 
   // Self State
   this.id = id;
+  this.score = 100;
   this.fleet = null;
   this.w = enemyWidth;
   this.h = enemyHeight;
@@ -82,6 +83,8 @@ Enemy.prototype.die = function () {
   this.deadAt = now;
   this.el.addClass("dead");
   this.fleet.numAlive--;
+
+  this.game.score += this.score;
 };
 Enemy.prototype.fire = function () {
   this.el.addClass("Fire");
@@ -116,6 +119,7 @@ function Fleet (ids, game) {
   this.ids = ids;
 
   // Self State
+  this.score = 500;
   this.x = enemyWidth;
   this.y = enemyHeight;
   this.w = (enemyWidth + enemyHSpacing) * 6 - enemyHSpacing;
@@ -264,5 +268,7 @@ Fleet.prototype.die = function () {
   var now = this.game.time;
   this.state = "dead";
   this.deadAt = now;
-  this.el.toggleClass("dead"); 
+  this.el.toggleClass("dead");
+
+  this.game.score += this.score;
 };
