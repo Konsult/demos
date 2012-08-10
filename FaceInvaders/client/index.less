@@ -10,7 +10,7 @@
 @z-unit-face: 1;
 @z-unit-body: 2;
 
-@day-length: 5s;
+@day-length: 400s;
 
 * {
 	padding: 0px;
@@ -39,6 +39,33 @@ body {
 @overlayHeight: 80px;
 @overlayOffset: 10px;
 
+@-webkit-keyframes sky-color {
+  0% {
+     background-color:skyblue;
+  }
+  15% {
+    background-color: skyblue;
+  }
+  25% {
+    background-color: #440022;
+  }
+  35% {
+    backgorund-color: black;
+  }
+  65% {
+    background-color: black;
+  }
+  75% {
+    background-color: #440022;
+  }
+  85% {
+    background-color: skyblue;
+  }
+  100% {
+    background-color: skyblue;
+  }
+}
+
 .World {
   .SetArea;
 
@@ -46,7 +73,7 @@ body {
   top: @consoleTop;
   bottom: @consoleBottom;
 
-  background-color: skyblue;
+  -webkit-animation: sky-color @day-length infinite linear;
 
   .Foreground {
     position: absolute;
@@ -63,20 +90,25 @@ body {
 
 @-webkit-keyframes day-rotation {
   0% {
-    -webkit-transform: rotate(0);
+    -webkit-transform: rotate(0deg);
   }
-  50% {
-    -webkit-transform: rotate(180);
+  25% {
+    -webkit-transform: rotate(90deg);
+  }
+  75% {
+    -webkit-transform: rotate(270deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
   }
 }
-
 .DayContainer {
   .SetArea;
   width: 100%;
   height: 100%;
 
-  -webkit-trasnform-origin: bottom;
-  -webkit-animation: day-rotation @day-length*2 linear infinite;
+  -webkit-transform-origin: bottom;
+  -webkit-animation: day-rotation @day-length linear infinite;
 
   .Sun {
     .SetArea;
@@ -87,6 +119,64 @@ body {
     left: 50%;
     margin-left: -41px;
     top: 20px;
+  }
+}
+@-webkit-keyframes cloud-fade {
+  0% {
+     opacity: 1;
+  }
+  15% {
+     opacity: 1;
+  }
+  25% {
+     opacity: 0;
+  }
+  75% {
+     opacity: 0;
+  }
+  85% {
+     opacity: 1;
+  }
+  100% {
+     opacity: 1;
+  }
+}
+.CloudContainer {
+  .SetArea;
+
+  width: 100%;
+  height: 75%;
+
+  -webkit-animation: cloud-fade @day-length infinite linear;
+
+  .Cloud {
+    .SetArea;
+    background-image: url('/images/day.png');
+    z-index: @z-cloud;
+
+    left: -25%;
+    -webkit-transition: left linear;
+  }
+
+  .Bacon1 {
+    width: 50px;
+    height: 24px;
+    background-position: -82px 0;
+  }
+  .Bacon2 {
+    width: 43px;
+    height: 14px;
+    background-position: -82px -24px;
+  }
+  .Egg1 {
+    width: 35px;
+    height: 18px;
+    background-position: -82px -38px;
+  }
+  .Egg2 {
+    width: 45px;
+    height: 15px;
+    background-position: -82px -58px;
   }
 }
 
