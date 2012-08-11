@@ -1,7 +1,8 @@
-var enemyWidth = 100 * 0.75;
-var enemyHeight = 151 * 0.75;
-var enemyHSpacing = enemyWidth;
-var enemyVSpacing = 10;
+var enemyWidth = 150;
+var enemyHeight = 150;
+var enemyHSpacing = 50;
+var enemyVSpacing = 5;
+var enemyClasses = ["tv", "nom", "cage"];
 
 function Enemy (id, game) {
   var world = this.world = game.world;
@@ -21,8 +22,9 @@ function Enemy (id, game) {
 
   // DOM State
   this.el = $("<div>");
-  this.el.toggleClass("Unit");
-  this.el.toggleClass("Enemy");
+  this.el.addClass("Unit");
+  this.el.addClass("Enemy");
+  this.el.addClass(enemyClasses[Math.floor(Math.random() * enemyClasses.length)]);
   this.setSize(this.w, this.h);
 
   // Add face
@@ -174,10 +176,6 @@ Fleet.prototype.setFormation = function(formation) {
         } else {
           x += enemyWidth + enemyHSpacing;
         }
-
-        // Reverse some of them.
-        if (Math.random() >= 0.5)
-          ship.el.toggleClass("Flipped");
       });
     break;
   }
@@ -230,7 +228,6 @@ Fleet.prototype.step = function () {
     }
     this.stepLeft();
   }
-  this.el.toggleClass("Flipped");
 };
 Fleet.prototype.fire = function () {
   var that = this;
