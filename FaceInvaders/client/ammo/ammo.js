@@ -48,36 +48,20 @@ Bullet.prototype.update = function (ms) {
     return;
   }
 
-  var hit = null;
+  var didhit = false;
   var that = this;
   switch (this.type) {
     case "Player":
-      var bool = _.find(world.enemies, function (e) {
+      didhit = _.find(world.enemies, function (e) {
         return game.collides(e, that) && e.takeHit(that);
       });
-      if (bool) {this.die(); return};
-
-      // if (game.balloon && game.collides(game.balloon, that))
-      //   hit = game.balloon;
       break;
     case "Enemy":
-      if (game.collides(game.player, that))
-        hit = game.player;
+      var player = game.player;
+      didhit = game.collides(player, this) && player.takeHit(this);
       break;
   }
-
-  if (hit) {
-    this.state = "exploding";
-    this.el.addClass("Explosion");
-    var thingOffset = hit.el.offset();
-    this.el.css({
-      top: thingOffset.top + hit.el.height() / 2,
-      left: thingOffset.left + hit.el.width() / 2,
-    });
-
-    setTimeout(function () { that.die(); console.log("yay")}, 500);
-    hit.die();
-  }
+  didhit && this.die();
 };
 Bullet.prototype.die = function () {
   var world = this.world;

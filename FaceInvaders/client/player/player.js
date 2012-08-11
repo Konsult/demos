@@ -157,12 +157,20 @@ Player.prototype.stepRight = function () {
 Player.prototype.die = function () {
   var now = this.game.time;
 
-  if (--this.lives == 0) {
-    this.state = "dead";
-    this.deadAt = now;
-    this.el.addClass("dead");
-  } else {
+  this.state = "dead";
+  this.deadAt = now;
+  this.el.addClass("dead");
+};
+Player.prototype.takeHit = function (thing) {
+  var off = this.el.offset();
+  var x = off.left + this.w/2;
+  var y = off.top + this.h/2;
+  this.game.effects.createExplosion(x,y);
+
+  if (--this.lives == 0) this.die();
+  else {
     // TODO: Stop moving, show explosion or flash, then fade back
     // in and add immunity for a few seconds to dodge bullets
   }
+  return true;
 };

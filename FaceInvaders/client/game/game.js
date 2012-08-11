@@ -6,12 +6,7 @@ function Game (pel) {
   // Load External APIs
   this.apis = {};
   var fb = this.apis.fb = new FacebookAPI("485761404769776");
-  fb.loadAsync(function () {
-    setTimeout(function () {
-      if (fb.status == "out")
-        that.showLogin();
-    }, 1000);
-  });
+  fb.loadAsync();
 
   // App Size Constants
   this.consoleHeight = 80;
@@ -35,12 +30,16 @@ function Game (pel) {
   // Create Effects Layer
   var effects = this.effects = new Effects(this);
 
-  // Load Player
+  // On login/logout
   fb.statusChange(function () {
     if (fb.status == "in") {
       that.balloon && that.balloon.die();
-      player.load();
+      that.balloon = null;
+      that.player.load();
       that.startNextLevel();
+    } else {
+      that.balloon = new LoginBalloon(fb, that.world);
+      that.world.enemies["LoginBalloon"] = that.balloon;
     }
   });
 
@@ -70,37 +69,6 @@ Game.prototype.render = function () {
   this.player.render();
   this.world.render();
   this.info.render();
-};
-Game.prototype.showLogin = function () {
-  var that = this;
-  var fb = this.apis.fb;
-
-  var tooltip = new Tooltip("Shoot this to begin");
-
-  var msg = "Log In to Facebook";
-  var onhit = function () {
-    fb.login();
-    that.balloon = null;
-    tooltip.el.remove();
-  };
-  var balloon = this.balloon = new BalloonButton(msg, onhit);
-
-  var el = balloon.el;
-  var world = this.world;
-
-  world.el.append(el);
-  world.el.append(tooltip.el);
-
-  var offset = {
-    left: (world.w - el.outerWidth(true)) / 2,
-    top: (world.h - el.outerHeight(true)) / 2,
-  };
-  el.offset(offset);
-
-  tooltip.el.offset({
-    top: offset.top - tooltip.el.outerHeight(true),
-    left: world.w / 2,
-  });
 };
 Game.prototype.startNextLevel = function () {
   var game = this;
@@ -169,12 +137,12 @@ function World (game) {
   createNightSky(sky, 10);
 };
 World.prototype.update = function (ms) {
-  function u(o) {o && o.update(ms);};
+  function u(o) {o && o.update && o.update(ms);};
   _.each(this.enemies, u);
   _.each(this.bullets, u);
 };
 World.prototype.render = function () {
-  function r(o) {o && o.render();};
+  function r(o) {o && o.render && o.render();};
   _.each(this.enemies, r);
   _.each(this.bullets, r);
 };
