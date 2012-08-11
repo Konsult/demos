@@ -292,56 +292,57 @@ body {
   background-color: #00a652;
 }
 
-@toggleWidth: 100px;
-@toggleItemW: 60px;
-@toggleHeight: 42px;
+@toggleSelectionWidth: 57px;
+@toggleSelectionHeight: 48px;
 .Toggle {
   .SetArea;
+  overflow: visible;
 
   top: 15px;
   left: 20px;
-  width: @toggleWidth;
-  height: @toggleHeight;
-
-  background-color: white;
-  border-radius: 5px;
-  border: 1px solid black;
-}
-.Toggle>div:hover {
-  opacity: 1;
+  width: 2 * @toggleSelectionWidth;
+  height: @toggleSelectionHeight;
 }
 .ToggleKeyboard {
   .SetArea;
-
+  overflow: visible;
   top: 0px;
   left: 0px;
-  width: @toggleItemW;
-  height: @toggleHeight;
+  width: 55px;
+  height: 35px;
 
-  background-image: url("/images/keyboard.png");
-  background-size: contain;
-  background-position: 0px, 0px, center;
-  background-repeat: no-repeat;
+  background-image: url("/images/controls.png");
+  background-position: -57px 0;
 
   opacity: 0.5;
 }
 .ToggleMouse {
   .SetArea;
-
+  overflow: visible;
   top: 0px;
   right: 0px;
-  width: @toggleWidth - @toggleItemW;
-  height: @toggleHeight;
+  width: 23px;
+  height: 38px;
 
-  background-image: url("/images/mouse.png");
-  background-size: cover;
-  background-position: 0px, 0px, center;
-  background-repeat: no-repeat;
+  background-image: url("/images/controls.png");
+  background-position: -113px 0;
 
   opacity: 0.5;
 }
 .toggled {
   opacity: 1;
+}
+.toggled:after {
+  .SetArea;
+  width: 57px;
+  height: 48px;
+  left: 50%;
+  top: 50%;
+  margin-left: -28px;
+  margin-top: -24px;
+
+  content: " ";
+  background-image: url("/images/controls.png");
 }
 .InfoOverlay {
   .SetArea;
