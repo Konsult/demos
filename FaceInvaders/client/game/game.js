@@ -2,6 +2,7 @@ function Game (pel) {
   var that = this;
   this.score = 0;
   this.level = 0;
+  this.inplay = false;
 
   // Load External APIs
   this.apis = {};
@@ -61,6 +62,9 @@ Game.prototype.launch = function () {
   loop();
 };
 Game.prototype.update = function (ms) {
+  var changeLevel = this.inplay && !_.find(this.world.enemies, function () {return true;});
+  changeLevel && this.startNextLevel();
+
   this.player.update(ms);
   this.world.update(ms);
   this.info.update(ms);
@@ -77,16 +81,30 @@ Game.prototype.startNextLevel = function () {
 
   var flybox = this.flybox;
   flybox.title.html("Level "+this.level);
+  flybox.removeClass("in");
+  flybox.removeClass("out");
   setTimeout(function () {flybox.addClass("in");}, 0);
   setTimeout(function () {flybox.addClass("out");}, 2000);
 
-  this.apis.fb.getFriends(function () {
+  // Load friend list if needed
+  if (!game.apis.fb.friendIDs.length)
+    this.apis.fb.getFriends();
+
+  game.inplay = false;
+  function start() {
+    if (game.inplay) return;
+    if (!game.apis.fb.friendIDs.length)
+      setTimeout(start,500);
+
     var ids = _.first(game.apis.fb.friendIDs, level.count);
     var fleet = new Fleet(ids, game);
     fleet.setFormation(level.formation);
     fleet.setSpeed(level.speed);
-    world.enemies["MainFleet"] = fleet;
-  });
+    fleet.id = "MainFleet";
+    world.enemies[fleet.id] = fleet;
+    game.inplay = true;
+  };
+  setTimeout(start,2000);
 };
 Game.prototype.collides = function (A, B) {
   var a = A.el; var b = B.el;

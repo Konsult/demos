@@ -89,6 +89,7 @@ Enemy.prototype.die = function () {
   this.el.remove();
   this.state = "dead";
   game.effects.createExplosion(x,y);
+  delete this.fleet.ships[this.id];
 };
 Enemy.prototype.fire = function () {
   if (this.state == "dead") return;
@@ -300,4 +301,5 @@ Fleet.prototype.die = function () {
   this.game.score += this.score;
   this.state = "dead";
   this.el.remove();
+  delete this.world.enemies[this.id];
 };
