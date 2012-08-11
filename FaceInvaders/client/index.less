@@ -1,3 +1,4 @@
+@z-popover: 9;
 @z-foreground: 8;
 @z-explosion: 7;
 @z-unit: 6;
@@ -292,6 +293,18 @@ body {
   background-color: #00a652;
 }
 
+.ControlsPopover {
+  .SetArea;
+  box-sizing: content-box;
+  -webkit-border-image: url('/images/popover.png') 17 14 43 66 stretch;
+  border-width: 17px 14px 43px 66px;
+  padding-right: 52px;
+  margin-left: -33px;
+  z-index: @z-popover;
+
+  max-width: 50%;
+}
+
 @toggleSelectionWidth: 57px;
 @toggleSelectionHeight: 48px;
 .Toggle {
@@ -330,7 +343,7 @@ body {
   opacity: 0.5;
 }
 .toggled {
-  opacity: 1;
+  opacity: 0.8;
 }
 .toggled:after {
   .SetArea;
@@ -343,6 +356,9 @@ body {
 
   content: " ";
   background-image: url("/images/controls.png");
+}
+.Toggle > *:hover {
+  opacity: 1;
 }
 .InfoOverlay {
   .SetArea;

@@ -12,6 +12,7 @@ function Controls (game) {
   toggle.addClass("Toggle");
   el.append(toggle);
 
+  var that = this;
   var keyboard = this.keyboard = {
     on: false,
     el: $("<div>").appendTo(toggle).addClass("ToggleKeyboard"),
@@ -65,6 +66,9 @@ function Controls (game) {
   };
   mouse.el.click(this, mouse.toggle);
 
+  new ControlsPopover(keyboard.el, "Left/right keys to move, space to shoot.");
+  new ControlsPopover(mouse.el, "Move mouse to move, click to shoot.");
+
   // By default, turn on keyboard, leave on touch permanently
   keyboard.el.click();
   $(document).bind("touchmove", this, function (e) {
@@ -72,3 +76,32 @@ function Controls (game) {
     player && player.goto(e.pageX);
   });
 };
+
+function ControlsPopover (anchorElement, content) {
+  this.anchor = anchorElement;
+  this.el = $("<div class='ControlsPopover'>");
+
+  if (content)
+    this.el.append(content);
+
+  var that = this;
+  function hide () {
+    that.el.remove();
+  }
+  function show () {
+    var anchorOffset = that.anchor.offset();
+    $("body").append(that.el);
+    that.el.css({
+      top: anchorOffset.top - that.el.outerHeight(true),
+      left: anchorOffset.left,
+    });
+  }
+  var eventsMap = {
+    mouseover: show,
+    mouseout: hide,
+    touchdown: show,
+    touchend: hide,
+    touchcancel: hide,
+  };
+  this.anchor.on(eventsMap);
+}
