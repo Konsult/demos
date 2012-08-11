@@ -76,14 +76,19 @@ Enemy.prototype.render = function() {
 };
 Enemy.prototype.die = function () {
   if (this.state == "dead") return;
-  var now = this.game.time;
 
-  this.state = "dead";
-  this.el.remove();
-
+  var game = this.game;
+  game.score += this.score;
   this.fleet.numAlive--;
   this.fleet.stepInterval *= .9;
-  this.game.score += this.score;
+
+  var off = this.el.offset();
+  var x = off.left + this.w/2;
+  var y = off.top + this.h/2;
+
+  this.el.remove();
+  this.state = "dead";
+  game.effects.createExplosion(x,y);
 };
 Enemy.prototype.fire = function () {
   if (this.state == "dead") return;
@@ -129,6 +134,7 @@ function Fleet (ids, game) {
   this.moveType = "step"; // Move by steps
   this.stepLength = 10;   // 10px wide steps
   this.stepInterval = 500;
+  this.maxStepInterval = 1000;
   
   this.stepDirection = "right";
   this.lastStep = now;
@@ -148,12 +154,11 @@ function Fleet (ids, game) {
 
   for (i in ids) {
     var id = ids[i];
-    var ship = ships[id] = world.enemies[id] = new Enemy(id, game);
+    var ship = ships[id] = new Enemy(id, game);
     ship.fleet = this;
     el.append(ship.el);
   }
 
-  this.setFormation({type: "rows", perrow: 4});
   world.el.append(this.el);
 };
 Fleet.prototype.setFormation = function(formation) {
@@ -179,6 +184,18 @@ Fleet.prototype.setFormation = function(formation) {
       });
     break;
   }
+};
+Fleet.prototype.setSpeed = function(speed) {
+  this.stepInterval = this.maxStepInterval * Math.pow(0.9, speed);
+};
+Fleet.prototype.takeHit = function(thing) {
+  var game = this.game;
+
+  var ship = _.find(this.ships, function (ship) {
+    return game.collides(ship, thing);
+  });
+  ship && ship.die();
+  return !!ship;
 };
 Fleet.prototype.update = function(ms) {
   if (this.state == "dead") return;
@@ -280,7 +297,7 @@ Fleet.prototype.setSize = function (w,h) {
   this.el.height(h);
 };
 Fleet.prototype.die = function () {
+  this.game.score += this.score;
   this.state = "dead";
   this.el.remove();
-  this.game.score += this.score;
 };

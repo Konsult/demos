@@ -33,7 +33,6 @@ Bullet.prototype.fireFrom = function (el, x, y) {
   this.world.bullets[this.num] = this;
 };
 Bullet.prototype.update = function (ms) {
-  var that = this;
   var game = this.game;
   var world = this.world;
 
@@ -45,21 +44,21 @@ Bullet.prototype.update = function (ms) {
   this.y += dist;
 
   if (!game.collides(world, this)) {
-    this.remove();
+    this.die();
     return;
   }
 
   var hit = null;
+  var that = this;
   switch (this.type) {
     case "Player":
-      if (world.fleet && game.collides(world.fleet, this)) {
-        var enemies = world.fleet.ships;
-        hit = _.find(enemies, function (e) {
-          return (e.state == "alive" && game.collides(e, that));
-        });
-      }
-      if (game.balloon && game.collides(game.balloon, that))
-        hit = game.balloon;
+      var bool = _.find(world.enemies, function (e) {
+        return game.collides(e, that) && e.takeHit(that);
+      });
+      if (bool) {this.die(); return};
+
+      // if (game.balloon && game.collides(game.balloon, that))
+      //   hit = game.balloon;
       break;
     case "Enemy":
       if (game.collides(game.player, that))
@@ -76,11 +75,11 @@ Bullet.prototype.update = function (ms) {
       left: thingOffset.left + hit.el.width() / 2,
     });
 
-    setTimeout(function () { that.remove(); console.log("yay")}, 500);
+    setTimeout(function () { that.die(); console.log("yay")}, 500);
     hit.die();
   }
 };
-Bullet.prototype.remove = function () {
+Bullet.prototype.die = function () {
   var world = this.world;
   world.bullets[this.num] = null;
   this.el.remove();

@@ -1,6 +1,7 @@
 function Game (pel) {
   var that = this;
   this.score = 0;
+  this.level = 0;
 
   // Load External APIs
   this.apis = {};
@@ -27,12 +28,19 @@ function Game (pel) {
   var info = this.info = new InfoOverlay(this);
   var controls = this.controls = new Controls(this);
 
+  // Create Flying Message Box
+  var flybox = this.flybox = $("<div>").addClass("LevelText").appendTo(this.el);
+  flybox.title = $("<h1>").appendTo(flybox);
+
+  // Create Effects Layer
+  var effects = this.effects = new Effects(this);
+
   // Load Player
   fb.statusChange(function () {
     if (fb.status == "in") {
       that.balloon && that.balloon.die();
       player.load();
-      that.startLevel(1);
+      that.startNextLevel();
     }
   });
 
@@ -93,20 +101,23 @@ Game.prototype.showLogin = function () {
     top: offset.top - tooltip.el.outerHeight(true),
     left: world.w / 2,
   });
-
 };
-Game.prototype.startLevel = function (id) {
-  var world = this.world;
+Game.prototype.startNextLevel = function () {
   var game = this;
+  var world = this.world;
+  var level = Levels[this.level++];
 
-  var outer = $("<div>").addClass("LevelText").appendTo(this.el);
-  var el = $("<h1>").appendTo(outer).html("Level "+id);
-  setTimeout(function () {outer.addClass("in");}, 0);
-  setTimeout(function () {outer.addClass("out");}, 2000);
+  var flybox = this.flybox;
+  flybox.title.html("Level "+this.level);
+  setTimeout(function () {flybox.addClass("in");}, 0);
+  setTimeout(function () {flybox.addClass("out");}, 2000);
 
   this.apis.fb.getFriends(function () {
-    var ids = _.first(game.apis.fb.friendIDs, 8);
-    world.fleet = new Fleet(ids, game);
+    var ids = _.first(game.apis.fb.friendIDs, level.count);
+    var fleet = new Fleet(ids, game);
+    fleet.setFormation(level.formation);
+    fleet.setSpeed(level.speed);
+    world.enemies["MainFleet"] = fleet;
   });
 };
 Game.prototype.collides = function (A, B) {
@@ -159,13 +170,11 @@ function World (game) {
 };
 World.prototype.update = function (ms) {
   function u(o) {o && o.update(ms);};
-  this.fleet && this.fleet.update(ms);
   _.each(this.enemies, u);
   _.each(this.bullets, u);
 };
 World.prototype.render = function () {
   function r(o) {o && o.render();};
-  this.fleet && this.fleet.render();
   _.each(this.enemies, r);
   _.each(this.bullets, r);
 };
