@@ -1,3 +1,8 @@
+var regularPlayerWidth = 138;
+var regularPlayerHeight = 103;
+var birthdayPlayerWidth = 159;
+var birthdayPlayerHeight = 198;
+
 function Player (game) {
   var world = this.world = game.world;
   this.game = game;
@@ -7,7 +12,13 @@ function Player (game) {
   this.friends = null;
 
   // Self State
-  this.w = 100; this.h = 95;
+  if ($(".Birthday").length) {
+    this.w = birthdayPlayerWidth;
+    this.h = birthdayPlayerHeight;
+  } else {
+    this.w = regularPlayerWidth;
+    this.h = regularPlayerHeight;    
+  }
   this.x = this.tx = (this.world.w / 2 - this.w / 2);
   this.state = "alive";
   this.deadAt = null;
@@ -15,7 +26,7 @@ function Player (game) {
 
   // Shooting
   this.shotInterval = 1000;
-  this.lastShot = game.time;
+  this.readyToShoot = true;
 
   // Movement State
   this.moveType = "linear"; // Move via smooth linear motion
@@ -26,8 +37,7 @@ function Player (game) {
 
   // DOM State
   this.el = $("<div>");
-  this.el.toggleClass("Unit");
-  this.el.toggleClass("Player");
+  this.el.addClass("Unit Player Ready");
   this.el.width(this.w);
   this.el.height(this.h);
 
@@ -41,7 +51,7 @@ function Player (game) {
 
   // Add wheels
   var wheelContainer = $("<div class='WheelContainer'>");
-  for (var i = 0; i < 5; i++)
+  for (var i = 0; i < 2; i++)
     wheelContainer.append($("<div class='wheel'>"));
   this.el.append(wheelContainer);
 
@@ -70,7 +80,7 @@ Player.prototype.load = function () {
 };
 Player.prototype.update = function (ms) {
   if (this.x == this.tx)  {
-    this.el.removeClass("Left Right");
+    this.el.removeClass("Move");
     return;
   }
 
@@ -81,8 +91,13 @@ Player.prototype.update = function (ms) {
   this.x += perc * need;
 
   // TODO: Move wheel rendering logic elsewhere
-  if (need > 0) this.el.removeClass("Left").addClass("Right");
-  else this.el.removeClass("Right").addClass("Left");
+  if (need > 0) {
+    this.el.css({"-webkit-transform": "rotateY(180deg)"});
+    this.el.addClass("Move");
+  } else {
+    this.el.css({"-webkit-transform": ""});
+    this.el.addClass("Move");
+  }
 };
 Player.prototype.render = function () {
   var now = this.game.time;
@@ -105,10 +120,10 @@ Player.prototype.fire = function () {
   var now = this.game.time;
 
   if (this.state != "alive") return;
+  if (!this.readyToShoot) return;
 
-  var since = now - this.lastShot;
-  if (since < this.shotInterval) return;
-  this.lastShot = now;
+  this.readyToShoot = false;
+  this.el.removeClass("Ready");
 
   var el = this.el;
   el.addClass("Fire");
@@ -117,8 +132,14 @@ Player.prototype.fire = function () {
   }, 150);
 
   var b = new Bullet("Player", this.game);
-  var x = this.w/2 - 10;
+  var x = this.w/2;
   b.fireFrom(this.el, x, 0);
+
+  var that = this;
+  setTimeout(function () {
+    that.readyToShoot = true;
+    that.el.addClass("Ready");
+  }, this.shotInterval);
 };
 Player.prototype.goto = function (x) {
   this.tx = x - this.w / 2;

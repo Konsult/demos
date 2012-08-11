@@ -428,65 +428,85 @@ body {
 .Player {
   bottom: 0px;
 
-  -webkit-transform-origin: bottom;
-
   .Face {
-    position: absolute;
-    top: 28px;
-    left: 23px;
-    width: 45px;
-    height: 45px;
+    .SetArea;
+    display: none;
   }
 
   .Body {
-    position: absolute;
+    .SetArea;
     top: 0;
     left: 0;
     bottom: 0;
     right: 0;
 
+    -webkit-transform-origin: bottom;
    background-image: url("/images/player.png");
   }
 
   .WheelContainer {
     position: absolute;
-    left: 9px;
-    right: 0;
-    bottom: 3px;
-    height: 15px;
+    left: 15px;
+    width: 83px;
+    bottom: 0;
+    height: 21px;
 
     z-index: @z-unit-body + 1;
 
     .wheel {
-      display: inline-block;
-      width: 18px;
-      height: 15px;
-
-      -webkit-transform-origin: center;
       -webkit-animation: 0.5s linear infinite;
     }
     .wheel:first-child {
-      background-image: url("/images/wheel1.png");
-      -webkit-transform-origin: 8px 8px;
-    }
-    .wheel:nth-child(2) {
-      background-image: url("/images/wheel2.png");
-      -webkit-transform-origin: 9px 8px;
-    }
-    .wheel:nth-child(3) {
-      background-image: url("/images/wheel3.png");
-      -webkit-transform-origin: 10px 9px;
-    }
-    .wheel:nth-child(4) {
-      background-image: url("/images/wheel4.png");
-      -webkit-transform-origin: 8px 7px;
-      width: 14px;
+      float: left;
+      background-image: url("/images/player.png");
+      background-position: -297px 0;
+      width: 20px;
+      height: 18px;
+      -webkit-transform-origin: 12px 10px;
     }
     .wheel:last-child {
-      background-image: url("/images/wheel5.png");
-      -webkit-transform-origin: 9px 6px;
-      width: 15px;
+      float: right;
+      background-image: url("/images/player.png");
+      background-position: -297px -19px;
+      width: 21px;
+      height: 20px;
+      -webkit-transform-origin: 11px 10px;
     }
+  }
+}
+.Player.Ready {
+  .Face {
+    top: 6px;
+    left: 35px;
+    width: 41px;
+    height: 41px;
+    display: block;
+  }
+  .Body {
+    background-position: 159px 0;
+  }
+}
+
+.Birthday {
+  .Player {
+    .Face {
+      display: block;
+      width: 100px;
+      height: 100px;
+      left: 34px;
+      top: 92px;
+      background-color: beige;
+    }
+    .Body {
+      background-position: 0 -103px;
+    }
+    .WheelContainer {
+      width: auto;
+      right: 15px;
+    }
+  }
+  .Player.Ready .Body {
+    background-position: -159px -103px;
   }
 }
 
@@ -501,22 +521,8 @@ body {
     -webkit-transform: rotate(-360deg);
   }
 }
-@-webkit-keyframes rotateCW {
-  0% {
-    -webkit-transform: rotate(0);
-  }
-  50% {
-    -webkit-transform: rotate(180deg);
-  }
-  100% {
-    -webkit-transform: rotate(360deg);
-  }
-}
-.Player.Left .wheel {
+.Player.Move .wheel {
   -webkit-animation-name: rotateCCW;
-}
-.Player.Right .wheel {
-  -webkit-animation-name: rotateCW;
 }
 
 @-webkit-keyframes fire {
@@ -534,7 +540,9 @@ body {
   }
 }
 .Player.Fire {
-  -webkit-animation: fire 0.15s ease-in;
+  .Body {
+    -webkit-animation: fire 0.15s ease-in;
+  }
 }
 
 @-webkit-keyframes enemy-fly {
