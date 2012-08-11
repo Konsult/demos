@@ -11,11 +11,24 @@ function InfoOverlay (game) {
 
   var lives = this.lives = $("<div>");
   lives.addClass("Lives");
+  lives.append("Lives: ");
   el.append(lives);
 };
 InfoOverlay.prototype.update = function (ms) {
   this.score[0].innerHTML = "Score: "+this.game.score;
-  this.lives[0].innerHTML = "Lives: "+this.game.player.lives;
+
+  var lifeCount = this.game.player.lives;
+  if (lifeCount === 0) {
+    this.lives[0].innerHTML = "Lives: 0";
+    return;
+  }
+
+  var oldLives = this.lives.children(".Heart");
+  var oldLifeCount = oldLives.length;
+  for (var i = oldLifeCount; i < lifeCount; i++)
+    this.lives.append($("<div class='Heart'>"));
+  for (var i =oldLifeCount - 1; i >= lifeCount; i--)
+    $(oldLives[oldLifeCount - 1 - i]).remove();
 };
 InfoOverlay.prototype.render = function (ms) {
   

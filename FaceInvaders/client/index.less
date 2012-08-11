@@ -370,8 +370,25 @@ body {
 
   top: 10px;
   right: 20px;
-  width: 100px;
+  width: 50%;
   height: 70px;
+  text-align: right;
+  vertical-align: top;
+
+  .Heart {
+    height: 34px;
+    width: 57px;
+    margin: 5px;
+
+    display: inline-block;
+
+    background-image: url('/images/lives.png');
+  }
+  .Birthday .Heart {
+    width: 40px;
+    height: 50px;
+    background-position: -57px 0;
+  }
 }
 
 .Unit {
