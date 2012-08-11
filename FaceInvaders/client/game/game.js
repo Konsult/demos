@@ -34,7 +34,10 @@ function Game (pel) {
   // On login/logout
   fb.statusChange(function () {
     if (fb.status == "in") {
-      that.balloon && that.balloon.die();
+      if (that.balloon) {
+        that.balloon.die();
+        delete that.world.enemies["LoginBalloon"];
+      }
       that.balloon = null;
       that.player.load();
       that.startNextLevel();
