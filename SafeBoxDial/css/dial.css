@@ -6,7 +6,7 @@ body{background-color:#333;}
 .Radial.Metal:after{transform:rotate(-65deg);}
 .Radial.Metal.Active{border-color:#ffffff;box-shadow:inset 0 0 0 4px #ffffff,inset 0 -2px 1px 6px rgba(0, 0, 0, 0.25),inset 0 0 5px 7px #ffffff,inset 0 -2px 5px 4px rgba(0, 0, 0, 0.8),inset 0 2px 1px 7px #ffffff,0 0 10px 2px #ffffff,0 -2px 1px 3px rgba(0, 0, 0, 0.15),0 2px 1px 1px rgba(255, 255, 255, 0.15);}
 .Dial,.Dial:before,.Dial:after{transform:translatez(0);}
-.Dial{position:relative;border-radius:50%;user-select:none;}.Dial .TickContainer{position:absolute;top:0;left:0;bottom:0;right:0;transition:transform 0.1s linear;}
+.Dial{position:relative;border-radius:50%;user-select:none;tap-highlight-color:transparent;}.Dial .TickContainer{position:absolute;top:0;left:0;bottom:0;right:0;transition:transform 0.1s linear;}
 .Dial .Tick{position:absolute;width:2em;left:50%;top:8px;bottom:50%;margin-left:-1em;text-align:center;font-size:24px;font-weight:bold;font-family:"Squada One",sans-serif;transform-origin:bottom;}
 .Dial .Tick.Selected{color:#0055ff;text-shadow:0 0 5px #33adff;}
 .Right .Dial{border-color:#00ff00;box-shadow:inset 0 0 0 4px #00ff00,inset 0 -2px 1px 6px rgba(0, 0, 0, 0.25),inset 0 0 5px 7px #47ff33,inset 0 -2px 5px 4px rgba(0, 0, 0, 0.8),inset 0 2px 1px 7px #ffffff,0 0 10px 2px #47ff33,0 -2px 1px 3px rgba(0, 0, 0, 0.15),0 2px 1px 1px rgba(255, 255, 255, 0.15);}.Right .Dial .Tick.Selected{color:#00ff00;text-shadow:0 -1px 0 rgba(0, 0, 0, 0.25),0 1px 0 rgba(255, 255, 255, 0.5);}
