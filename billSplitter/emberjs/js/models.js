@@ -17,18 +17,12 @@ App.Person = Em.Object.extend({
   }.property("items.@each.value"),
 
   tip: function () {
-    return App.totalTaxAndTip.get("tip") * this.get("totalWithoutTaxOrTip");
-  }.property("totalWithoutTaxOrTip", "App.totalTaxAndTip"),
+    return App.get("totalTaxAndTip").get("tip") * this.get("totalWithoutTaxOrTip");
+  }.property("totalWithoutTaxOrTip", "App.totalTaxAndTip.tip"),
 
   tax: function () {
-    var tax = App.totalTaxAndTip.get("taxPercentage");
-    if (!isNaN(tax))
-      return tax * this.get("totalWithoutTaxOrTip");
-
-    // Don't know percentage, so just evenly split between people.
-    tax = App.totalTaxAndTip.get("tax");
-    return tax / App.people.length;
-  }.property("App.people", "totalWithoutTaxOrTip", "App.totalTaxAndTip.tax", "App.totalTaxAndTip.total"), 
+    return App.get("totalTaxAndTip").taxForPersonSubtotal(this.get("totalWithoutTaxOrTip"));
+  }.property("App.people.length", "totalWithoutTaxOrTip", "App.totalTaxAndTip.taxView.value"), 
 
   removeItem: function (item) {
     var items = this.get("items");
@@ -57,7 +51,7 @@ App.Item = Em.Object.extend({
     var view = this.get("view");
     if (!view)
       return 0;
-    var value = parseFloat(view.get("value"));
+    var value = view.numericValue();
     return isNaN(value) ? 0 : value;
   }.property("view.value"),
 
@@ -76,6 +70,7 @@ App.Item = Em.Object.extend({
 
 App.SharedItem = App.Item.extend({
   view: null, // Will be set by DraggableItemView.
+  chooserView: null,
 
   portionedItems: null, // Array of App.PortionedSharedItem, will be initialized on creation.
 
@@ -88,10 +83,23 @@ App.SharedItem = App.Item.extend({
   }.property("portionedItems"),
 
   focusIn: function (e) {
+    this._super(e);
+
+    var chooserView = App.SharingChooserOverlay.create({
+      sharedItem: this,
+    });
+    this.set("chooserView", chooserView);
+    chooserView.appendTo($("body"));
+
     App.sharedItemFocusIn(this);
   },
 
   focusOut: function (e) {
+    this._super(e);
+
+    this.get("chooserView").removeFromParent();
+    this.set("chooserView", null);
+
     App.sharedItemFocusOut(this);
   },
 

@@ -4,47 +4,71 @@ App.CurrencyInput = Em.TextField.extend({
   attributeBindings: ["name", "pattern"],
   type: "text",
   pattern: "[0-9]*",
+  prefix: "",
+  postfix: "",
+  focusedPlaceholder: "0.00",
 
   maxLength: 0, // This can be overriden by subclasses. 0 = no max length.
+
+  numericValue: function () {
+    var val = this.numberFromDisplayString(this.get("value"));
+    if (!val.length)
+      return 0;
+    var number = parseFloat(val);
+    if (isNaN(number)) {
+      debug("yo this number isn't a number: " + val);
+      return 0;
+    }
+    return number;
+  },
+
+  displayStringForNumber: function (value) {
+    return this.get("prefix") + value + this.get("postfix");
+  },
+
+  numberFromDisplayString: function (value) {
+    return value.substring(this.get("prefix").length, value.length - this.get("postfix").length);
+  },
 
   focusIn: function (e) {
     var fieldElement = e.target;
     if (!fieldElement.value)
-      fieldElement.value = "0.00";
+      fieldElement.value = this.displayStringForNumber(this.get("focusedPlaceholder"));
     this.moveSelectionToEnd(fieldElement);
   },
 
   focusOut: function (e) {
-    if (!parseFloat(e.target.value))
+    if (!parseFloat(this.numberFromDisplayString(e.target.value)))
       e.target.value = "";
   },
 
   keyPress: function (e) {
-    var value = String.fromCharCode(e.charCode);
+    var key = String.fromCharCode(e.charCode);
 
-    if (!value)
+    if (!key)
       return;
 
     e.preventDefault();
     e.stopPropagation();
 
-    value = parseInt(value);
-    if (isNaN(value))
+    key = parseInt(key);
+    if (isNaN(key))
       return;
 
     var fieldElement = e.target;
 
     // Prevent exceeding the max length.
     var maxLength = this.get("maxLength");
-    if (maxLength && fieldElement.value.length >= maxLength)
+    var value = this.numberFromDisplayString(fieldElement.value);
+    if (maxLength && value.length >= maxLength)
       return;
 
     // Compute new value
-    var oldValue = parseFloat(fieldElement.value);
+    var oldValue = parseFloat(value);
     if (isNaN(oldValue))
       oldValue = 0;
-    value = parseFloat(oldValue) * 10 + value / 100;
-    fieldElement.value = value.toFixed(2);
+    value = parseFloat(oldValue) * 10 + key / 100;
+    fieldElement.value = this.displayStringForNumber(value.toFixed(2));
   },
 
   keyDown: function (e) {
@@ -56,9 +80,9 @@ App.CurrencyInput = Em.TextField.extend({
     e.stopPropagation();
 
     var fieldElement = e.target;
-    var oldValue = parseFloat(fieldElement.value);
+    var oldValue = parseFloat(this.numberFromDisplayString(fieldElement.value));
     // Round down to the 2nd decimal place
-    fieldElement.value = Math.max(oldValue / 10 - 0.004, 0).toFixed(2);
+    fieldElement.value = this.displayStringForNumber(Math.max(oldValue / 10 - 0.004, 0).toFixed(2));
   },
 
   mouseUp: function (e) {
@@ -99,32 +123,22 @@ App.TotalTaxAndTip = Em.View.extend({
     return selection.value;
   }.property("tipView.selection"),
 
-  tax: function () {
-    var view = this.get("taxView");
-    if (!view)
+  taxForPersonSubtotal: function (personSubtotal) {
+    var taxView = this.get("taxView");
+    if (!taxView)
       return 0;
-    var tax = parseFloat(view.get("value"));
-    if (isNaN(tax))
-      return 0;
-    return tax;
-  }.property("taxView.value"),
+    return taxView.taxForPersonSubtotal(personSubtotal);
+  },
 
   total: function () {
     var view = this.get("totalView");
     if (!view)
       return 0;
-    var total = parseFloat(view.get("value"));
+    var total = parseFloat(view.numberFromDisplayString(view.get("value")));
     if (isNaN(total))
       return 0;
     return total;
   }.property("totalView.value"),
-
-  taxPercentage: function () {
-    var total = this.get("total");
-    if (!total)
-      return NaN;
-    return this.get("tax") / total;
-  }.property("tax, total"),
 
   createChildView: function (viewClass, attrs) {
     var view = this._super(viewClass, attrs);
@@ -140,22 +154,145 @@ App.TotalTaxAndTip = Em.View.extend({
   },
 });
 
+App.TaxField = App.CurrencyInput.extend({
+  classNames: "TaxField",
+  maxLength: 6,
+  name: "tax",
+
+  modes: {
+    "$": { prefix: "$", postfix: "", placeholder: "$0.00", focusedPlaceholder: "0.00" },
+    "%": { prefix: "", postfix: "%", placeholder: "0.00%", focusedPlaceholder: "0.00" },
+    "Auto": { prefix: "", postfix: "", placeholder: "Auto", focusedPlaceholder:"Auto" },
+  },
+  currentMode: "$",
+
+  taxForPersonSubtotal: function (personSubtotal) {
+    switch (this.get("currentMode")) {
+      case "$":
+        var numberOfPeople = App.get("people").length;
+        if (!numberOfPeople)
+          return 0;
+        var totalTax = parseFloat(this.numericValue());
+        return totalTax / numberOfPeople;
+      case "%":
+        var taxPercentage = parseFloat(this.numericValue());
+        return personSubtotal * taxPercentage / 100;
+      case "Auto":
+        debug("Dude, auto isn't implemented yet");
+        return 0;
+      default:
+        return 0;
+    }
+  },
+
+  keyPress: function (e) {
+    if (this.get("currentMode") !== "Auto")
+      return this._super(e);
+
+    // Don't allow entry in auto mode.
+    e.preventDefault();
+    e.stopPropagation();
+  },
+
+  keyDown: function (e) {
+    if (this.get("currentMode") !== "Auto")
+      return this._super(e);
+
+    // Don't allow entry in auto mode.
+    e.preventDefault();
+    e.stopPropagation();
+  },
+
+  modeChanged: function () {
+    var mode = this.modes[this.get("currentMode")];
+    this.set("prefix", mode.prefix);
+    this.set("postfix", mode.postfix);
+    this.set("placeholder", mode.placeholder);
+    this.set("focusedPlaceholder", mode.focusedPlaceholder);
+    this.set("value", "");
+
+    this.updateTooltip();
+  }.observes("currentMode"),
+
+  updateTooltip: function () {
+    var id = this.$().attr("id");
+    var currentMode = this.get("currentMode");
+
+    var buttons = [];
+    for (var mode in this.modes) {
+      var className = mode === currentMode ? "btn active" : "btn";
+
+      buttons.push('<button class="' + className + 
+                    '" onclick="Em.View.views[\'' + id + '\'].set(\'currentMode\', \'' + mode + '\');">' + 
+                    mode + '</button>');
+    }
+
+    var buttonHTML = '<div class="btn-group">' + buttons.join("") + '</div>';
+
+    this.$().tooltip({
+      placement: "top",
+      trigger: "focus",
+      title: buttonHTML,
+    });
+  },
+
+  didInsertElement: function () {
+    this._super();
+    this.modeChanged();
+  },
+});
+
 App.TipSelect = Em.Select.extend({
   attributeBindings: ["name"],
   content: Em.A([
-      { name: "0%", value: 0, },
-      { name: "5%", value: 0.05, },
-      { name: "10%", value: 0.1, },
-      { name: "15%", value: 0.15, },
-      { name: "17%", value: 0.17, },
-      { name: "20%", value: 0.20, },
-      { name: "25%", value: 0.25, },
+      { name: "No Tip", value: 0, },
+      { name: "5% Tip", value: 0.05, },
+      { name: "10% Tip", value: 0.1, },
+      { name: "15% Tip", value: 0.15, },
+      { name: "17% Tip", value: 0.17, },
+      { name: "20% Tip", value: 0.20, },
+      { name: "25% Tip", value: 0.25, },
     ]),
   optionLabelPath: "content.name",
   optionValuePath: "content.value",
 
   didInsertElement: function () {
     this.$().find("option[value='0.15']").attr("selected", "selected");
+  },
+});
+
+App.SharingChooserOverlay = Em.View.extend({
+  templateName: "sharing-chooser-overlay",
+  classNames: ["SharingChooserOverlay"],
+
+  sharedItem: null, // Given on initialization.
+
+  didInsertElement: function () {
+    var el = this.$();
+    el.css("bottom", $("body").height() - this.get("sharedItem").get("view").$().offset().top);
+
+    var container = el.find(".ScrollableButtonsContainer").children();
+    var numPeople = App.get("people").length;
+    var width = numPeople * 60;
+    if (width > container.width())
+      container.width(width);
+  },
+});
+
+App.PersonCheckButton = Em.View.extend({
+  person: null, // Given on initialization.
+  classNames: ["PersonCheckButton", "btn", "btn-inverse", "btn-large"],
+  
+  didInsertElement: function () {
+    this.$().append('<i class="icon-user icon-white"></i>' + this.get("person").get("id"));
+    this.$().css("width", 100 / App.get("people").length + "%");
+  },
+
+  touchEnd: function (e) {
+    this.$().toggleClass("Active");
+    // Prevent unfocusing the associated input field.
+    e.preventDefault();
+    e.stopPropagation();
   },
 });
 
@@ -174,6 +311,7 @@ App.PersonView = Em.View.extend({
     var tip = person.get("tip");
     var subtotal = person.get("totalWithoutTaxOrTip");
     var tax = person.get("tax");
+
     return (tip + subtotal + tax).toFixed(2);
   }.property("person.totalWithoutTaxOrTip", "person.tip", "person.tax"),
 
@@ -204,7 +342,8 @@ App.ItemView = App.CurrencyInput.extend({
   classNames: ["ItemPrice"],
   name: "itemPrice",
   placeholder: "+",
-  maxLength: 7,
+  maxLength: 6,
+  prefix: "$",
 
   item: null, // Will be bound when view is inserted
 
@@ -218,7 +357,8 @@ App.ItemView = App.CurrencyInput.extend({
   },
 
   focusOut: function (e) {
-      this.get("item").focusOut(e);
+    this._super(e);
+    this.get("item").focusOut(e);
   },
 });
 
@@ -297,7 +437,7 @@ App.DraggableItemView = App.ItemView.extend({
     var self = jEvent.data.draggableItemView;
     
     // No point in dragging empty items.
-    if (!parseFloat(self.get("value")))
+    if (!parseFloat(self.numberFromDisplayString(self.get("value"))))
       return;
 
     var data = self.constructEventData();

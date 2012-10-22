@@ -160,7 +160,7 @@ SafeBoxDial.Dial = Em.ContainerView.extend({
         e.stopPropagation();
       },
 
-      mouseUp: function (e) {
+      mouseup: function (e) {
         e.data.responder.touchEnd(e);
       }
     }, data);
@@ -192,9 +192,6 @@ SafeBoxDial.Dial = Em.ContainerView.extend({
   // For testing only, really
   mouseDown: function (e) {
     this.touchStart(e);
-  },
-  mouseUp: function (e) {
-    this.touchEnd(e);
   },
 
   // Helper functions
